@@ -1281,7 +1281,7 @@ function hudUpdate(){
  $('hLevel').innerHTML='Level '+(run.lv+1)+' / '+LV.length+'<small>'+LV[run.lv].n+'</small>';
  var p='';for(var i=1;i<=CFG.MAX_ATTEMPTS;i++)p+='<span class="pip '+(i<run.att?'used':(i===run.att?'now':''))+'"></span>';
  $('hPips').innerHTML=p;
- $('hPen').textContent=run.fails?('-'+(run.fails*CFG.PENALTY)+' per level'):'';
+ $('hPen').textContent=run.fails?('-'+(run.fails*CFG.PENALTY)+' this round'):'';
  $('hScore').innerHTML=run.total+'<small>SCORE</small>';
 }
 function showLevel(i){
@@ -1342,7 +1342,7 @@ $('act').addEventListener('click',function(){
  if(run.st!=='result')return;
  if(run.pass){
   if(run.lv===LV.length-1){showFinal(false);return;}
-  run.att=1;run.ev=false;run.st='play';showLevel(run.lv+1);
+  run.att=1;run.fails=0;run.ev=false;run.st='play';showLevel(run.lv+1);   /* each round starts fresh: its penalty never carries over */
  }else if(run.over){showFinal(false);}
  else{run.ev=false;run.st='play';$('banner').hidden=true;$('acts').hidden=true;$('hw'+run.lv).classList.remove('ghost');SC[run.lv].resetScene();hudUpdate();}
 });

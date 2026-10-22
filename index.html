@@ -1305,7 +1305,7 @@ function evaluate(T){
  var cur=$('hw'+run.lv);cur.classList.add('ghost');
  introTok++;
  if(pass){
-  var base=Math.round(100-(100-CFG.BASE_AT_EDGE)*Math.min(1,d/CFG.PASS_FT)),pen=run.fails*CFG.PENALTY,sc=Math.max(0,base-pen);
+  var base=d<=CFG.PERFECT_FT?100:Math.round(100-(100-CFG.BASE_AT_EDGE)*Math.min(1,(d-CFG.PERFECT_FT)/(CFG.PASS_FT-CFG.PERFECT_FT)))   /* within PERFECT_FT (3 in) = full 100 */,pen=run.fails*CFG.PENALTY,sc=Math.max(0,base-pen);
   run.scores[run.lv]=sc;run.total+=sc;run.pass=true;
   banner('<b class="big ok">'+(base>=100?'Perfect!':base>=90?'Excellent!':base>=80?'Great!':'Good!')+'</b><span class="pts">+'+sc+'</span>'+(pen?'<small>'+base+' - '+pen+' penalty</small>':''),run.lv===LV.length-1);
  }else{

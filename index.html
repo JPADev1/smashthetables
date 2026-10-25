@@ -69,7 +69,10 @@ body{background:radial-gradient(120% 80% at 50% -10%,#16327a 0%,var(--night) 60%
 .chip b{display:block;font:400 1.15rem var(--display);color:var(--snow);font-variant-numeric:tabular-nums;letter-spacing:0}
 .chip.miss b{color:var(--mute)}
 .hsrow{display:flex;gap:10px;justify-content:center}
-.hsbox{width:58px;height:66px;text-align:center;font:400 2.3rem/1 var(--display);text-transform:uppercase;color:var(--gold);background:var(--night);border:3px solid var(--mute);border-radius:12px;caret-color:var(--gold);padding:0}
+.hsname{width:min(230px,56vw);height:62px;font:400 1.7rem/1 var(--display);color:var(--gold);background:var(--night);border:3px solid var(--mute);border-radius:12px;caret-color:var(--gold);padding:0 12px}
+.hsname::placeholder,.hsbox::placeholder{color:#4a5a84}
+.hsname:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,207,74,.3)}
+.hsbox{width:58px;height:62px;text-align:center;font:400 2.3rem/1 var(--display);text-transform:uppercase;color:var(--gold);background:var(--night);border:3px solid var(--mute);border-radius:12px;caret-color:var(--gold);padding:0}
 .hsbox:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,207,74,.3)}
 .hsnew{font:400 1.25rem/1.1 var(--display);color:var(--gold);letter-spacing:.04em;text-transform:uppercase;margin:0}
 .hsmsg{font:800 .8rem/1.3 var(--body);color:var(--bad);margin:0;min-height:1em}
@@ -80,7 +83,7 @@ body{background:radial-gradient(120% 80% at 50% -10%,#16327a 0%,var(--night) 60%
 .board h2{margin:0;font:400 1.6rem var(--display);letter-spacing:.06em;color:var(--gold);text-transform:uppercase}
 .hslist{list-style:none;margin:0;padding:0;width:100%;display:grid;grid-template-columns:1fr 1fr;gap:4px 14px;font-variant-numeric:tabular-nums}
 .hslist li{display:grid;grid-template-columns:2.2em 1fr auto;align-items:baseline;gap:8px;padding:4px 10px;border-radius:8px;background:var(--panel2);font:800 .95rem var(--body);color:var(--mute)}
-.hslist li b{font:400 1.25rem/1 var(--display);color:var(--snow);letter-spacing:.12em}
+.hslist li b{font:400 1.1rem/1 var(--display);color:var(--snow);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
 .hslist li span{font:400 1.15rem/1 var(--display);color:var(--gold)}
 .hslist li.me{background:var(--gold);color:var(--ink)}.hslist li.me b,.hslist li.me span{color:var(--ink)}
 .hsempty{font:700 .95rem var(--body);color:var(--mute);margin:0}
@@ -217,8 +220,9 @@ html.fs-on .rot,html.standalone .rot{display:none!important}
     <div class="rank" id="fRank"></div>
     <div class="chips" id="fChips"></div>
     <div id="hsEntry" hidden>
-     <p class="hsnew">New high score! Enter your initials</p>
-     <div class="hsrow" style="margin-top:10px"><input class="hsbox" id="hs1" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="First initial"><input class="hsbox" id="hs2" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Second initial"><input class="hsbox" id="hs3" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Third initial"></div>
+     <p class="hsnew">New high score! Enter your name</p>
+     <div class="hsrow" style="margin-top:10px"><input class="hsname" id="hsFirst" maxlength="12" autocomplete="off" autocapitalize="words" spellcheck="false" placeholder="First name" aria-label="First name"><input class="hsbox" id="hsLast" maxlength="1" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="L" aria-label="Last initial"></div>
+     <p class="fine" style="margin-top:6px">First name and last initial</p>
      <p class="hsmsg" id="hsMsg" style="margin-top:8px"></p>
      <button class="btn sm" id="hsSave" type="button" disabled>Save score</button>
     </div>
@@ -2754,7 +2758,7 @@ function showFinal(quit){
  $('fTitle').textContent=cleared===LV.length?'All '+LV.length+' levels cleared':(quit?'Run ended':'Out of attempts');
  $('fTotal').textContent=t;
  var mx=LV.length*100,r=t>=mx*.9?'Table Smashing Legend':t>=mx*.7?'Mafia Menace':t>=mx*.5?'Tailgate Regular':t>=mx*.25?'Rookie Smasher':'Table Survivor';
- $('fMax').textContent='/ '+mx;$('fChips').style.gridTemplateColumns='repeat('+Math.min(LV.length,9)+',minmax(0,1fr))';
+ $('fMax').textContent='/ '+mx;$('fChips').style.gridTemplateColumns='repeat('+(window.innerWidth<560?Math.ceil(LV.length/2):Math.min(LV.length,9))+',minmax(0,1fr))';   /* two rows on phones */
  $('fRank').textContent=r;
  var c='';LV.forEach(function(l,i){var s=run.scores[i];c+='<div class="chip'+(s===undefined?' miss':'')+'">L'+(i+1)+'<b>'+(s===undefined?'-':s)+'</b></div>';});
  $('fChips').innerHTML=c;
@@ -2765,8 +2769,38 @@ function showFinal(quit){
    On SmashTheTables.com (and its Netlify preview URLs) scores go to the site's own /api/scores function.
    In the Claude preview they use the page's shared storage; anywhere else they stay on this device. */
 var HS={mode:'local',db:null,list:[],mine:null,ready:null};
-var HS_BAD=['ASS','FUK','FUC','FUQ','FCK','FKU','SHT','CUM','KKK','NIG','NGR','NGA','DIK','DIC','COK','FAG','TIT','VAG','SEX','JIZ','CNT','KYS','NAZ','HOE','WTF','PUS','POO','PEE','GAY','SUK','SUX','XXX','DAM','GOD','JEW','RAP','PIS','POS','STD','ANL','ANS','BCH','BJS','SOB','BUM','HIV','LSD','THC','420'];
-function hsSort(a){return a.filter(function(r){return r&&/^[A-Z]{3}$/.test(r.i)&&typeof r.s==='number';}).sort(function(x,y){return y.s-x.s||x.t-y.t;}).slice(0,20);}
+/* ---- high-score name check: first name + last initial, e.g. "Chloe T." ----
+   Same code runs in the game (instant feedback) and on the score server (the final word).
+   1) format: first name 2-12 letters (a hyphen or apostrophe inside is fine), last initial 1 letter
+   2) the name is flattened before checking: lowercase, number/symbol swaps undone (sh1t, $hit, @ss),
+      everything but letters dropped (f.u.c.k), and repeated letters squeezed (fuuuck)
+   3) ROOTS are blocked anywhere in the name, and also across first name + initial joined (Fuc + K).
+      They are chosen so they do not hide inside real names.
+   4) WHOLE words are blocked only when they are the entire first name, because they do sit inside
+      real names (ass in Cassandra, hoe in Phoebe, nazi in Nazir, anal in Analise, tit in Titus). */
+var NAME_ROOTS=['fuck','fck','fvck','fvk','phuk','phuck','bullshit','shithead','shitface','shitty','cunt','nigg','fagg','bitch','biatch','whore','slut','penis','vagina','dildo','jizz','wank','twat','hitler','retard','molest','pedo','pussy','asshole','asshl','ashole','azzhole','arsehole','btch','bastard','douche','skank','rapist','orgasm','blowjob','handjob','cumshot','tittie','titty','motherf','milf','dickhead','cocksuck','jackoff','jerkoff','buttplug','nutsack','scrotum','testicle','clitor','fellat','horny','sexy','porno','hentai','incest','bestial','beaner','wetback','chink','gook','raghead','towelhead','kkk'];
+var NAME_WHOLE=['ass','arse','anus','anal','butt','butts','poop','poo','pee','fart','turd','crap','damn','hell','piss','puke','shit','sht','shyt','fuk','fuq','fuc','dick','cock','cum','sex','tit','tits','boob','boobs','hoe','fag','nig','niga','nigr','nazi','spic','kike','coon','dyke','tranny','porn','semen','nude','naked','balls','nuts','wtf','stfu','kys','pp','weiner','wiener','schlong','knob','prick','thot','simp','idiot','stupid','dumb','loser','ugly','fatso','moron','rape','rapist','pedo','kunt','kkk'];
+function nameFlat(s){
+ var map={'0':'o','1':'i','!':'i','|':'l','3':'e','4':'a','@':'a','5':'s','$':'s','7':'t','+':'t','8':'b','9':'g','6':'g','2':'z'};
+ s=String(s||'').toLowerCase().replace(/[01!|34@5$7+8962]/g,function(c){return map[c];});
+ return s.replace(/[^a-z]/g,'');
+}
+function nameSqueeze(s){return s.replace(/(.)\1+/g,'$1');}
+function nameProblem(first,last){   /* returns '' when OK, or a short reason */
+ first=String(first||'').trim();last=String(last||'').trim();
+ if(!/^[A-Za-z][A-Za-z'-]{0,10}[A-Za-z]$/.test(first))return 'format';
+ if(!/^[A-Za-z]$/.test(last))return 'format';
+ var f=nameFlat(first),fs=nameSqueeze(f),both=f+nameFlat(last),bs=nameSqueeze(both);
+ if(NAME_WHOLE.indexOf(f)>=0||NAME_WHOLE.indexOf(fs)>=0)return 'word';
+ for(var i=0;i<NAME_ROOTS.length;i++){var r=NAME_ROOTS[i];if(f.indexOf(r)>=0||fs.indexOf(r)>=0||both.indexOf(r)>=0||bs.indexOf(r)>=0)return 'word';}
+ return '';
+}
+function nameTidy(first,last){   /* "chLOE","t" -> "Chloe T" (hyphen/apostrophe parts each capitalized) */
+ first=String(first).trim().toLowerCase().replace(/(^|[-'])([a-z])/g,function(m,a,b){return a+b.toUpperCase();});
+ return first+' '+String(last).trim().toUpperCase();
+}
+function hsName(r){return r.n?r.n+'.':r.i;}   /* new entries: "Chloe T."; older ones keep their 3 initials */
+function hsSort(a){return a.filter(function(r){return r&&(/^[A-Za-z][A-Za-z'-]{0,10}[A-Za-z] [A-Z]$/.test(r.n||'')||/^[A-Z]{3}$/.test(r.i||''))&&typeof r.s==='number';}).sort(function(x,y){return y.s-x.s||x.t-y.t;}).slice(0,20);}
 HS.ready=(function(){
  if(/(^|\.)smashthetables\.com$|\.netlify\.app$/i.test(location.hostname)){HS.mode='api';return Promise.resolve();}
  if(window.claude&&window.claude.use){return window.claude.use('db').then(function(db){if(db){HS.db=db;HS.mode='db';}}).catch(function(){});}
@@ -2780,10 +2814,10 @@ function hsLoad(){
   return hsLocal();
  }).then(function(l){HS.list=hsSort(l||[]);return HS.list;});
 }
-function hsSave(ini,score){
- var row={i:ini,s:score,t:Date.now()};HS.mine=row;
+function hsSave(name,score){
+ var row={n:name,s:score,t:Date.now()};HS.mine=row;
  return HS.ready.then(function(){
-  if(HS.mode==='api')return fetch('/api/scores',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({i:ini,s:score})}).then(function(r){if(!r.ok)throw {status:r.status};return r.json();}).then(function(l){var m=(l||[]).filter(function(x){return x.i===ini&&x.s===score;}).sort(function(a,b){return b.t-a.t;})[0];if(m)HS.mine=m;return l;});
+  if(HS.mode==='api')return fetch('/api/scores',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({n:name,s:score})}).then(function(r){if(!r.ok)throw {status:r.status};return r.json();}).then(function(l){var m=(l||[]).filter(function(x){return x.n===name&&x.s===score;}).sort(function(a,b){return b.t-a.t;})[0];if(m)HS.mine=m;return l;});
   if(HS.mode==='db')return HS.db.collection('scores').add(row).then(hsLoad);
   var l=hsLocal();l.push(row);l=hsSort(l);try{localStorage.setItem('stt-scores',JSON.stringify(l));}catch(e){}return l;
  }).then(function(l){HS.list=hsSort(l||[]);return HS.list;});
@@ -2791,8 +2825,8 @@ function hsSave(ini,score){
 function hsQualifies(t){return t>0&&(HS.list.length<20||t>HS.list[HS.list.length-1].s);}
 function hsRender(){
  var ol=$('hsList'),h='';
- HS.list.forEach(function(r,i){var me=HS.mine&&r.i===HS.mine.i&&r.s===HS.mine.s&&r.t===HS.mine.t;h+='<li'+(me?' class="me"':'')+'><em style="font-style:normal">'+(i+1)+'.</em><b></b><span>'+r.s+'</span></li>';});
- ol.innerHTML=h;Array.prototype.forEach.call(ol.querySelectorAll('b'),function(b,i){b.textContent=HS.list[i].i;});
+ HS.list.forEach(function(r,i){var me=HS.mine&&hsName(r)===hsName(HS.mine)&&r.s===HS.mine.s&&r.t===HS.mine.t;h+='<li'+(me?' class="me"':'')+'><em style="font-style:normal">'+(i+1)+'.</em><b></b><span>'+r.s+'</span></li>';});
+ ol.innerHTML=h;Array.prototype.forEach.call(ol.querySelectorAll('b'),function(b,i){b.textContent=hsName(HS.list[i]);});
  $('hsEmpty').hidden=HS.list.length>0;
  $('hsWhere').textContent=HS.mode==='local'?'Scores are saved on this device only.':'';
 }
@@ -2800,22 +2834,22 @@ function hsShow(){$('board').hidden=false;hsRender();hsLoad().then(hsRender).cat
 $('hsOpen').addEventListener('click',hsShow);
 $('hsView').addEventListener('click',hsShow);
 $('hsClose').addEventListener('click',function(){$('board').hidden=true;});
-var HSB=[$('hs1'),$('hs2'),$('hs3')];
-function hsIni(){return HSB.map(function(b){return b.value;}).join('');}
-HSB.forEach(function(b,i){
- b.addEventListener('input',function(){b.value=b.value.toUpperCase().replace(/[^A-Z]/g,'').slice(-1);$('hsMsg').textContent='';if(b.value&&i<2)HSB[i+1].focus();$('hsSave').disabled=hsIni().length<3;});
- b.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!b.value&&i>0){HSB[i-1].focus();HSB[i-1].value='';$('hsSave').disabled=true;e.preventDefault();}else if(e.key==='Enter'&&!$('hsSave').disabled){$('hsSave').click();}});
-});
+var HSF=$('hsFirst'),HSL=$('hsLast');
+function hsReady(){$('hsSave').disabled=!(HSF.value.trim().length>=2&&HSL.value.length===1);}
+HSF.addEventListener('input',function(){var lt={'0':'o','1':'i','3':'e','4':'a','5':'s','7':'t','8':'b','@':'a','$':'s'};var v=HSF.value.replace(/[0134578@$]/g,function(c){return lt[c];}).replace(/[^A-Za-z'-]/g,'').slice(0,12);if(v!==HSF.value)HSF.value=v;$('hsMsg').textContent='';hsReady();});
+HSL.addEventListener('input',function(){HSL.value=HSL.value.toUpperCase().replace(/[^A-Z]/g,'').slice(-1);$('hsMsg').textContent='';hsReady();});
+HSF.addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();HSL.focus();}});
+HSL.addEventListener('keydown',function(e){if(e.key==='Backspace'&&!HSL.value){HSF.focus();e.preventDefault();}else if(e.key==='Enter'&&!$('hsSave').disabled){$('hsSave').click();}});
 $('hsSave').addEventListener('click',function(){
- var ini=hsIni();
- if(!/^[A-Z]{3}$/.test(ini)){$('hsMsg').textContent='Enter three letters.';return;}
- if(HS_BAD.indexOf(ini)>=0){$('hsMsg').textContent='Pick different initials.';return;}
- var bt=$('hsSave');bt.disabled=true;bt.textContent='Saving...';
- hsSave(ini,run.total).then(function(){$('hsEntry').hidden=true;hsShow();}).catch(function(e){$('hsMsg').textContent=(e&&e.status>=400&&e.status<500)?'The scoreboard could not take that score. Try different initials.':'Could not save the score. Check your connection and try again.';bt.disabled=false;}).then(function(){bt.textContent='Save score';});
+ var why=nameProblem(HSF.value,HSL.value);
+ if(why==='format'){$('hsMsg').textContent='Enter your first name (2 to 12 letters) and last initial.';return;}
+ if(why){$('hsMsg').textContent='Let’s pick a different name.';return;}
+ var name=nameTidy(HSF.value,HSL.value),bt=$('hsSave');bt.disabled=true;bt.textContent='Saving...';
+ hsSave(name,run.total).then(function(){$('hsEntry').hidden=true;hsShow();}).catch(function(e){$('hsMsg').textContent=(e&&e.status>=400&&e.status<500)?'The scoreboard could not take that name. Try a different one.':'Could not save the score. Check your connection and try again.';bt.disabled=false;}).then(function(){bt.textContent='Save score';});
 });
 function hsOffer(t){
- $('hsEntry').hidden=true;HS.mine=null;HSB.forEach(function(b){b.value='';});$('hsSave').disabled=true;$('hsMsg').textContent='';
- hsLoad().catch(function(){return HS.list;}).then(function(){if(run.st==='final'&&hsQualifies(t)){$('hsEntry').hidden=false;try{HSB[0].focus({preventScroll:true});}catch(e){}}});
+ $('hsEntry').hidden=true;HS.mine=null;HSF.value='';HSL.value='';$('hsSave').disabled=true;$('hsMsg').textContent='';
+ hsLoad().catch(function(){return HS.list;}).then(function(){if(run.st==='final'&&hsQualifies(t)){$('hsEntry').hidden=false;try{HSF.focus({preventScroll:true});}catch(e){}}});
 }
 $('play').addEventListener('click',newRun);
 $('again').addEventListener('click',newRun);

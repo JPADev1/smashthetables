@@ -2127,11 +2127,11 @@ function makeLevel8(PX){
   var s='<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+')">';
   if(kind==='console'){
    s+='<rect width="'+w+'" height="'+h+'" fill="#151b2e" stroke="'+O+'" stroke-width="3"/><rect y="'+(h*.08)+'" width="'+w+'" height="'+(h*.2)+'" fill="#c8102e"/>';
-   s+='<text x="'+(w/2)+'" y="'+(h*.24)+'" text-anchor="middle" font-family="'+FONT+'" font-size="'+(h*.16).toFixed(0)+'" fill="#fff">GAME BOX</text>';
+   s+='<text x="'+(w/2)+'" y="'+(h*.24)+'" text-anchor="middle" font-family="'+FONT+'" font-size="'+Math.min(h*.16,w*.16).toFixed(0)+'" fill="#fff">GAME BOX</text>';
    s+='<g transform="translate('+(w*.5)+' '+(h*.66)+') scale('+(Math.min(w,h)/120).toFixed(3)+')">'+consoleSVG()+'</g>';
   }else if(kind==='cart'){
    s+='<rect width="'+w+'" height="'+h+'" fill="#111" stroke="'+O+'" stroke-width="3"/><rect x="'+(w*.08)+'" y="'+(h*.3)+'" width="'+(w*.84)+'" height="'+(h*.6)+'" fill="#2f7d3a"/>';
-   s+='<text x="'+(w/2)+'" y="'+(h*.24)+'" text-anchor="middle" font-family="'+FONT+'" font-size="'+(h*.17).toFixed(0)+'" fill="#ffd23f">PIXEL BOWL</text>';
+   s+='<text x="'+(w/2)+'" y="'+(h*.24)+'" text-anchor="middle" font-family="'+FONT+'" font-size="'+Math.min(h*.17,w*.128).toFixed(0)+'" fill="#ffd23f">PIXEL BOWL</text>';
    s+='<g transform="translate('+(w*.5)+' '+(h*.62)+') scale('+(Math.min(w,h)/110).toFixed(3)+')">'+pixelPlayer()+'</g>';
   }else{
    s+='<rect width="'+w+'" height="'+h+'" fill="#f1ece0" stroke="'+O+'" stroke-width="3"/><text x="'+(w/2)+'" y="'+(h*.45)+'" text-anchor="middle" font-family="Courier New,monospace" font-weight="700" font-size="'+(h*.13).toFixed(0)+'" fill="#6b6b6b">100% COTTON</text>';
@@ -2154,7 +2154,7 @@ function makeLevel8(PX){
  }
  function cartSVG(){
   var s='<g stroke="'+O+'" stroke-width="3" stroke-linejoin="round"><path d="M-30 -40H30V34H22V40H-22V34H-30Z" fill="#8f96a3"/><path d="M-24 -40V-46H24V-40" fill="#8f96a3"/>';
-  s+='<rect x="-24" y="-32" width="48" height="50" rx="2" fill="#111"/><rect x="-20" y="-8" width="40" height="22" fill="#2f7d3a" stroke="none"/><text y="-17" text-anchor="middle" font-family="'+FONT+'" font-size="10" fill="#ffd23f" stroke="none">PIXEL BOWL</text>';
+  s+='<rect x="-24" y="-32" width="48" height="50" rx="2" fill="#111"/><rect x="-20" y="-8" width="40" height="22" fill="#2f7d3a" stroke="none"/><text y="-17" text-anchor="middle" font-family="'+FONT+'" font-size="7.4" fill="#ffd23f" stroke="none">PIXEL BOWL</text>';
   s+='<g transform="translate(0 4) scale(.36)">'+pixelPlayer()+'</g><path d="M-22 26H22" stroke-width="2"/>';
   return s+'</g>';
  }

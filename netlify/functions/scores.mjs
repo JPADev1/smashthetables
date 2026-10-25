@@ -2,7 +2,7 @@
 // Stored as one small JSON list in Netlify Blobs (store "scores", key "top").
 import { getStore } from "@netlify/blobs";
 
-const MAX_SCORE = 700;   // 7 levels x 100
+const MAX_SCORE = 2000;  // room for up to 20 levels x 100 (the game has 9 now and more are coming)
 const KEEP = 50;         // keep a few extra so the top 20 stays full if entries are removed
 const BAD = new Set(["ASS","FUK","FUC","FUQ","FCK","FKU","SHT","CUM","KKK","NIG","NGR","NGA","DIK","DIC","COK","FAG","TIT","VAG","SEX","JIZ","CNT","KYS","NAZ","HOE","WTF","PUS","POO","PEE","GAY","SUK","SUX","XXX","DAM","GOD","JEW","RAP","PIS","POS","STD","ANL","ANS","BCH","BJS","CLT","SOB","BUM","HIV","LSD","THC"]);
 const headers = { "content-type": "application/json", "cache-control": "no-store" };

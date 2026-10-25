@@ -2727,7 +2727,7 @@ function evaluate(T){
  if(pass){
   var base=T.base7!==undefined?T.base7:d<=CFG.PERFECT_FT?100:Math.round(100-(100-CFG.BASE_AT_EDGE)*Math.min(1,(d-CFG.PERFECT_FT)/(CFG.PASS_FT-CFG.PERFECT_FT)))   /* within PERFECT_FT (3 in) = full 100 */,pen=run.fails*CFG.PENALTY,sc=Math.max(0,base-pen);
   run.scores[run.lv]=sc;run.total+=sc;run.pass=true;
-  banner('<b class="big ok">'+(base>=100?'Perfect!':base>=90?'Excellent!':base>=80?'Great!':'Good!')+'</b><span class="pts">+'+sc+'</span>'+(pen?'<small>'+base+' - '+pen+' penalty</small>':''),run.lv===6?'left':run.lv===5?'right':'');
+  banner('<b class="big ok">'+(base>=100?'Perfect!':base>=90?'Excellent!':base>=80?'Great!':'Good!')+'</b><span class="pts">+'+sc+'</span>'+(pen?'<small>'+base+' - '+pen+' penalty</small>':''),run.lv===6?'left':(run.lv===5||run.lv===8)?'right':'');
  }else{
   run.pass=false;run.fails++;run.att++;
   var left=CFG.MAX_ATTEMPTS-run.att+1;

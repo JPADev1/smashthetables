@@ -44,6 +44,13 @@ export default async (req) => {
   const store = getStore({ name: "scores", consistency: "strong" });
   let list = (await store.get("top", { type: "json" })) || [];
 
+  // One-time rename (Oct 25, 2026): two early 3-initial scores become first name + last initial.
+  // Only scores saved before this deploy are touched; once renamed there is nothing left to match.
+  const RENAME = { SAT: "Scott T", RPT: "Randall T" }, BEFORE = Date.parse("2026-10-25T15:42:00Z");
+  let renamed = false;
+  list = list.map((r) => (r && r.i && RENAME[r.i] && r.t < BEFORE) ? (renamed = true, { n: RENAME[r.i], s: r.s, t: r.t }) : r);
+  if (renamed) await store.setJSON("top", list);
+
   if (req.method === "GET") return new Response(JSON.stringify(sortTop(list).slice(0, 20)), { headers });
 
   if (req.method === "POST") {

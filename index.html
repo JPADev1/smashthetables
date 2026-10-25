@@ -2765,7 +2765,7 @@ function showFinal(quit){
    On SmashTheTables.com (and its Netlify preview URLs) scores go to the site's own /api/scores function.
    In the Claude preview they use the page's shared storage; anywhere else they stay on this device. */
 var HS={mode:'local',db:null,list:[],mine:null,ready:null};
-var HS_BAD=['ASS','FUK','FUC','FUQ','FCK','FKU','SHT','CUM','KKK','NIG','NGR','NGA','DIK','DIC','COK','FAG','TIT','VAG','SEX','JIZ','CNT','KYS','NAZ','HOE','WTF','PUS','POO','PEE','GAY','SUK','SUX','XXX','DAM','GOD','JEW','RAP','PIS','POS','STD','ANL','ANS','BCH','BJS','CLT','SOB','BUM','HIV','LSD','THC','420'];
+var HS_BAD=['ASS','FUK','FUC','FUQ','FCK','FKU','SHT','CUM','KKK','NIG','NGR','NGA','DIK','DIC','COK','FAG','TIT','VAG','SEX','JIZ','CNT','KYS','NAZ','HOE','WTF','PUS','POO','PEE','GAY','SUK','SUX','XXX','DAM','GOD','JEW','RAP','PIS','POS','STD','ANL','ANS','BCH','BJS','SOB','BUM','HIV','LSD','THC','420'];
 function hsSort(a){return a.filter(function(r){return r&&/^[A-Z]{3}$/.test(r.i)&&typeof r.s==='number';}).sort(function(x,y){return y.s-x.s||x.t-y.t;}).slice(0,20);}
 HS.ready=(function(){
  if(/(^|\.)smashthetables\.com$|\.netlify\.app$/i.test(location.hostname)){HS.mode='api';return Promise.resolve();}

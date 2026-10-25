@@ -2460,7 +2460,8 @@ function makeLevel8(PX){
 function makeLevel9(PX){
  var W=1200,HT=550;
  var IT={REACH:.8,CLICK:1.5,MAD:2.5,PULL:3.7,PULLED:4.5,BLOW:4.6,FLASH:5.5,END:5.9};
- var N=16,SW=320,SPD=1/.9,BW=.06,YEL=.06,BREATH=1.3,MAXT=5;   /* pins, strip width px, strip widths per second, blow reach, yellow zone, breath, tries */
+ var N=12,SW=246,CK=5.6,CY0=350+40*5.6;   /* CK: cartridge art scale; CY0: where its art origin sits so the connector edge is at y 350 */
+ var _n=0,SPD=1/.9,BW=.06,YEL=.06,BREATH=1.3,MAXT=5;   /* pins, strip width px, strip widths per second, blow reach, yellow zone, breath, tries */
  var el=document.getElementById(PX+'tbl'),hold=document.getElementById(PX+'thold'),stp=document.getElementById(PX+'tsteps');
  var T,clk=0,last=0,running=false,playIntro=true,LHV='',VIS=true,FR=0;
  function rnd(a,b){return a+Math.random()*(b-a);}
@@ -2517,35 +2518,33 @@ function makeLevel9(PX){
   s+='<path d="M360 600Q366 476 462 436Q528 414 600 414Q672 414 738 436Q834 476 840 600Z" fill="#c8102e" stroke="'+O+'" stroke-width="6" stroke-linejoin="round"/>';
   s+='<path d="M532 420Q600 452 668 420" fill="none" stroke="'+O+'" stroke-width="5"/>';
   /* arms up to the cartridge (behind it) */
-  [[455,480,L-16],[745,480,R+16]].forEach(function(a){s+='<path d="M'+a[0]+' '+a[1]+'Q'+((a[0]+a[2])/2)+' 520 '+a[2]+' 456" fill="none" stroke="'+O+'" stroke-width="50" stroke-linecap="round"/><path d="M'+a[0]+' '+a[1]+'Q'+((a[0]+a[2])/2)+' 520 '+a[2]+' 456" fill="none" stroke="#c8102e" stroke-width="38" stroke-linecap="round"/>';});
+  [[455,490,L+SW/2-30*CK-4],[745,490,L+SW/2+30*CK+4]].forEach(function(a){s+='<path d="M'+a[0]+' '+a[1]+'Q'+((a[0]+a[2])/2)+' 540 '+a[2]+' 470" fill="none" stroke="'+O+'" stroke-width="50" stroke-linecap="round"/><path d="M'+a[0]+' '+a[1]+'Q'+((a[0]+a[2])/2)+' 540 '+a[2]+' 470" fill="none" stroke="#c8102e" stroke-width="38" stroke-linecap="round"/>';});
   s+=headAt(600,250,(T.holding?Math.sin(clk*30)*1:0),4.2,{mouth:false,sad:fail});
   if(puff){   /* cheeks puffed, lips in an O */
    s+='<ellipse cx="600" cy="326" rx="44" ry="26" fill="#f0c08a"/>';
    [-1,1].forEach(function(k){s+='<circle cx="'+(600+k*62)+'" cy="326" r="27" fill="#f0c08a" stroke="'+O+'" stroke-width="5"/><circle cx="'+(600+k*62)+'" cy="330" r="13" fill="#f08a7a" opacity=".55"/>';});
    s+='<ellipse cx="600" cy="330" rx="19" ry="16" fill="#d0605a" stroke="'+O+'" stroke-width="5"/><ellipse cx="600" cy="331" rx="8" ry="8" fill="#5a1020"/>';
   }
-  /* the cartridge, held up to his mouth */
-  s+='<rect x="'+(L-20)+'" y="384" width="'+(SW+40)+'" height="156" rx="12" fill="#8f96a3" stroke="'+O+'" stroke-width="5"/>';
-  s+='<rect x="'+(L+46)+'" y="398" width="'+(SW-92)+'" height="126" rx="6" fill="#111" stroke="'+O+'" stroke-width="3"/><rect x="'+(L+56)+'" y="440" width="'+(SW-112)+'" height="76" fill="#2f7d3a"/>';
-  s+='<text x="'+(L+SW/2)+'" y="430" text-anchor="middle" font-family="'+FONT+'" font-size="25" fill="#ffd23f">PIXEL BOWL</text><g transform="translate('+(L+SW/2)+' 478) scale(.8)">'+pixelPlayer()+'</g>';
-  for(var g=0;g<5;g++)s+='<path d="M'+(L-8)+' '+(404+g*24)+'h40M'+(R+8)+' '+(404+g*24)+'h-40" stroke="#6f7684" stroke-width="5" stroke-linecap="round"/>';
-  /* circuit board edge with the gold contacts */
-  s+='<rect x="'+(L-6)+'" y="348" width="'+(SW+12)+'" height="44" rx="4" fill="#2f6b3a" stroke="'+O+'" stroke-width="4"/>';
+  /* the cartridge: the same Pixel Bowl cartridge art as the intro, turned contacts-up toward his mouth */
+  var Lc=L+SW/2;
+  s+='<g transform="translate('+Lc.toFixed(1)+' '+CY0.toFixed(1)+') scale('+CK+') rotate(180)">'+cartSVG()+'</g>';
+  /* gold contacts on the connector end, with the dust */
+  s+='<rect x="'+(L-4)+'" y="350" width="'+(SW+8)+'" height="36" fill="#2f6b3a" stroke="'+O+'" stroke-width="4"/>';
   var pw=SW/N;
   for(var i=0;i<N;i++){
    var px=L+i*pw,d=dustShown(i);
-   s+='<rect x="'+(px+4).toFixed(1)+'" y="354" width="'+(pw-8).toFixed(1)+'" height="32" rx="2" fill="#e3b23c" stroke="#8a6a1c" stroke-width="2"/>';
-   if(d>0){s+='<rect x="'+(px+2).toFixed(1)+'" y="352" width="'+(pw-4).toFixed(1)+'" height="36" rx="3" fill="#8d7b62" opacity="'+(d>.5?.95:.5).toFixed(2)+'"/>';
-    for(var q=0;q<3;q++){var sx=px+5+((i*7+q*5)%(pw-9)),sy=357+((i*11+q*9)%26);s+='<circle cx="'+sx.toFixed(1)+'" cy="'+sy+'" r="'+(1.6+d)+'" fill="#5e5140" opacity="'+(.4+.5*d).toFixed(2)+'"/>';}}
+   s+='<rect x="'+(px+3).toFixed(1)+'" y="354" width="'+(pw-6).toFixed(1)+'" height="28" rx="2" fill="#e3b23c" stroke="#8a6a1c" stroke-width="2"/>';
+   if(d>0){s+='<rect x="'+(px+1.5).toFixed(1)+'" y="352" width="'+(pw-3).toFixed(1)+'" height="32" rx="3" fill="#8d7b62" opacity="'+(d>.5?.95:.5).toFixed(2)+'"/>';
+    for(var q=0;q<3;q++){var sx=px+4+((i*7+q*5)%(pw-8)),sy=357+((i*11+q*9)%22);s+='<circle cx="'+sx.toFixed(1)+'" cy="'+sy+'" r="'+(1.6+d)+'" fill="#5e5140" opacity="'+(.4+.5*d).toFixed(2)+'"/>';}}
   }
-  /* hands gripping the ends */
-  [L-16,R+16].forEach(function(hx){s+='<circle cx="'+hx+'" cy="456" r="30" fill="#f0c08a" stroke="'+O+'" stroke-width="5"/>';});
+  /* hands gripping the sides */
+  [Lc-30*CK-4,Lc+30*CK+4].forEach(function(hx){s+='<circle cx="'+hx.toFixed(1)+'" cy="470" r="32" fill="#f0c08a" stroke="'+O+'" stroke-width="5"/>';});
   /* target: the leading edge of the contacts and the yellow zone around it */
   if(T.mode==='blow'||T.mode==='hit'||T.mode==='done'){
    var E=dir>0?R:L,band=YEL*SW,hot=Math.abs(600-E)<=band;
-   s+='<rect x="'+(E-band).toFixed(1)+'" y="342" width="'+(2*band).toFixed(1)+'" height="56" rx="6" fill="#ffcf4a" opacity="'+(hot?.6:.3)+'"/>';
-   s+='<path d="M'+E.toFixed(1)+' 342V398" stroke="#ffcf4a" stroke-width="5"/><path d="M'+E.toFixed(1)+' 398l-12 16h24Z" fill="#ffcf4a" stroke="'+O+'" stroke-width="3" stroke-linejoin="round"/>';
-   s+='<path d="M600 346V394" stroke="#fff" stroke-width="3" stroke-dasharray="5 4"/>';
+   s+='<rect x="'+(E-band).toFixed(1)+'" y="344" width="'+(2*band).toFixed(1)+'" height="48" rx="6" fill="#ffcf4a" opacity="'+(hot?.6:.3)+'"/>';
+   s+='<path d="M'+E.toFixed(1)+' 344V392" stroke="#ffcf4a" stroke-width="5"/><path d="M'+E.toFixed(1)+' 392l-12 16h24Z" fill="#ffcf4a" stroke="'+O+'" stroke-width="3" stroke-linejoin="round"/>';
+   s+='<path d="M600 346V388" stroke="#fff" stroke-width="3" stroke-dasharray="5 4"/>';
   }
   /* breath + dust puffs */
   if(puff){for(var w=0;w<3;w++){var ph=(clk*4+w/3)%1;s+='<path d="M'+(590+w*10)+' 344q'+(-5+w*5)+' '+(3+ph*3)+' 0 '+(6+ph*4)+'" stroke="#e8f2ff" stroke-width="3" fill="none" opacity="'+(1-ph).toFixed(2)+'" stroke-linecap="round"/>';}}
@@ -2625,7 +2624,7 @@ function makeLevel9(PX){
  function pinC(i){return (i+.5)/N;}
  function cover(){   /* every pin the mouth has passed over (plus the breath's reach) this sweep */
   var lo=Math.min(T.start,T.u)-BW,hi=Math.max(T.start,T.u)+BW;
-  for(var i=0;i<N;i++){var c=pinC(i);if(!T.cov[i]&&c>=lo&&c<=hi&&T.dust[i]>0){T.cov[i]=true;var px=stripL()+c*SW;for(var k=0;k<7;k++)var side=(px<600?-1:1);T.puffs.push({x:px+rnd(-6,6),y:rnd(352,384),vx:side*rnd(120,320),vy:rnd(-40,90),r:rnd(5,11),life:0,max:rnd(.6,1.1)});}}
+  for(var i=0;i<N;i++){var c=pinC(i);if(!T.cov[i]&&c>=lo&&c<=hi&&T.dust[i]>0){T.cov[i]=true;var px=stripL()+c*SW;for(var k=0;k<7;k++)var side=(px<600?-1:1);T.puffs.push({x:px+rnd(-6,6),y:rnd(352,380),vx:side*rnd(120,320),vy:rnd(-40,90),r:rnd(5,11),life:0,max:rnd(.6,1.1)});}}
  }
  function release(auto){
   if(!T.holding)return;T.holding=false;

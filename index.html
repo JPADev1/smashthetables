@@ -1617,6 +1617,40 @@ function endTable(PX){
  s+='<path d="M200 211q4 -6 9 -3q-3 5 -9 3ZM200 211q-1 -7 4 -9q1 6 -4 9Z" fill="#1f8a3c" stroke-width="1.5"/><circle cx="201" cy="211" r="2" fill="#c8102e" stroke-width="1"/>';
  return s+'</g>';
 }
+/* C9 Christmas lights along the ceiling line and around the window, plus the overloaded outlet:
+   every cord (both light strings, the TV, the tree) runs into one wall outlet stacked with cube taps */
+function xmasWiring(PX){
+ var W='#1f4d2a',COL=['#e0263f','#2fb54a','#2a6bd7','#ff9a1f','#ffd23f'],ci=0,s='';
+ function bulb(x,y,a){var c=COL[ci++%COL.length];
+  return '<g transform="translate('+x.toFixed(1)+' '+y.toFixed(1)+') rotate('+a+')"><circle cx="0" cy="12" r="12" fill="'+c+'" opacity=".28"/><rect x="-3.2" y="-2" width="6.4" height="7" rx="1.5" fill="'+W+'" stroke="#0e2414" stroke-width="1.2"/><path d="M-4.2 5Q-6.4 13 0 19Q6.4 13 4.2 5Z" fill="'+c+'" stroke="#2a170a" stroke-width="1.4"/><ellipse cx="-1.6" cy="10" rx="1.2" ry="3" fill="#fff" opacity=".55"/></g>';}
+ /* ceiling line: swags between hooks just under the top molding */
+ var w='M-60 50',b='';
+ for(var x=-60;x<1260;x+=72){w+='Q'+(x+36)+' 70 '+(x+72)+' 50';b+=bulb(x,52,0)+bulb(x+36,60,0);}
+ s+='<path d="'+w+'" stroke="'+W+'" stroke-width="2.6" fill="none"/>'+b;
+ /* around the window: across the curtain rod and down both outer edges */
+ w='M44 92';b='';
+ for(x=44;x<336;x+=48.7){w+='Q'+(x+24.3)+' 100 '+(x+48.7)+' 92';b+=bulb(x+24.3,95,0);}
+ w+='M44 92Q36 210 44 330M336 92Q344 210 336 330';
+ s+='<path d="'+w+'" stroke="'+W+'" stroke-width="2.4" fill="none"/>'+b;
+ for(var y=120;y<330;y+=34){s+=bulb(41,y,90)+bulb(339,y,-90);}
+ /* cords into the outlet: ceiling string drops down the wall, window string, TV, and the tree along the baseboard */
+ var OX=302,OY=360;
+ s+='<path d="M372 55Q382 200 362 320Q350 346 336 350" stroke="'+W+'" stroke-width="3" fill="none"/>';
+ s+='<path d="M336 330Q340 344 326 344" stroke="'+W+'" stroke-width="3" fill="none"/>';
+ s+='<path d="M380 356Q358 372 340 368" stroke="#2b2b2b" stroke-width="3.4" fill="none"/>';
+ s+='<path d="M985 384Q900 392 700 389T390 388Q340 390 336 376" stroke="'+W+'" stroke-width="3" fill="none"/>';
+ /* outlet plate with two sockets, cube taps on both, adapters off the sides, plugs everywhere, a little spark */
+ s+='<g stroke="#2a170a" stroke-linejoin="round" transform="translate('+OX+' '+OY+') scale(1.35) translate('+(-OX)+' '+(-OY)+')">';
+ s+='<rect x="'+(OX-12)+'" y="'+(OY-18)+'" width="24" height="38" rx="3" fill="#efe7d6" stroke-width="2.5"/>';
+ s+='<ellipse cx="'+(OX+10)+'" cy="'+(OY-14)+'" rx="7" ry="5" fill="#3a2a1a" opacity=".35" stroke="none"/>';
+ s+='<rect x="'+(OX-10)+'" y="'+(OY-15)+'" width="20" height="15" rx="2" fill="#f7f2e4" stroke-width="2"/><rect x="'+(OX-21)+'" y="'+(OY-13)+'" width="12" height="11" rx="2" fill="#e9e1cc" stroke-width="2"/>';
+ s+='<rect x="'+(OX-10)+'" y="'+(OY+2)+'" width="20" height="15" rx="2" fill="#f7f2e4" stroke-width="2"/><rect x="'+(OX+9)+'" y="'+(OY+4)+'" width="12" height="11" rx="2" fill="#e9e1cc" stroke-width="2"/>';
+ [[OX-25,OY-8,'#1f4d2a'],[OX-15,OY-17,'#2b2b2b'],[OX+1,OY-18,'#1f4d2a'],[OX+12,OY-8,'#1f4d2a'],[OX-13,OY+10,'#1f4d2a'],[OX+24,OY+10,'#2b2b2b'],[OX+15,OY+18,'#1f4d2a'],[OX-1,OY+19,'#1f4d2a']].forEach(function(q){
+  s+='<rect x="'+(q[0]-3.5)+'" y="'+(q[1]-3.5)+'" width="7" height="7" rx="1.5" fill="'+q[2]+'" stroke-width="1.5"/>';});
+ s+='<path d="M'+(OX-1)+' '+(OY+22)+'Q'+(OX-4)+' '+(OY+34)+' '+(OX+8)+' '+(OY+40)+'M'+(OX-28)+' '+(OY-6)+'Q'+(OX-34)+' '+(OY+10)+' '+(OX-26)+' '+(OY+38)+'" stroke="#1f4d2a" stroke-width="2.4" fill="none"/>';
+ s+='<path d="M'+(OX+15)+' '+(OY-22)+'l5 -6l0 5l6 -4M'+(OX+28)+' '+(OY+2)+'l6 -3l-2 4l7 -2" stroke="#ffd23f" stroke-width="2.2" fill="none" stroke-linecap="round"/>';
+ return s+'</g>';
+}
 /* ================= Level 7: Where it all started =================
    Intro: first person, eyes blink open on the living-room floor, sit up, the console TV is showing
    the end of the Dec. 23, 1990 Bills-Dolphins game (Bills 24, Dolphins 14, AFC East clinched) with fans storming the goal post.
@@ -1702,6 +1736,7 @@ function makeLevel7(PX){
   for(var i=0;i<1300;i++){var cx=-50+sr()*1300,cy=392+sr()*310,k2=i%4;ps[k2]+='M'+cx.toFixed(0)+' '+cy.toFixed(0)+'q2 -5 4 -1q1 3 3 -2';}
   ps.forEach(function(p,k){s+='<path d="'+p+'" stroke="'+cols[k]+'" stroke-width="2" fill="none" stroke-linecap="round"/>';});
   s+=endTable(PX);
+  s+=xmasWiring(PX);
   /* christmas tree */
   s+='<rect x="992" y="350" width="24" height="40" fill="#5a3417" stroke="'+o+'" stroke-width="3"/><path d="M962 388L976 362H1032L1046 388Z" fill="#b22222" stroke="'+o+'" stroke-width="3"/>';
   [[300,150,1004,0],[245,124,1004,1],[190,98,1004,2],[138,72,1004,3]].forEach(function(t){
@@ -1725,7 +1760,7 @@ function makeLevel7(PX){
   [400,468,738,800].forEach(function(lx){s+='<path d="M'+lx+' 384L'+(lx+8)+' 384L'+(lx+6)+' 404L'+(lx+2)+' 404Z" fill="#3d2410" stroke="'+o+'" stroke-width="2"/>';});
   /* toy football helmet on the floor (plain, no logo) */
   s+='<g transform="translate(372 404)" stroke="'+o+'" stroke-width="2.5" stroke-linejoin="round"><ellipse cx="-12" cy="-7" rx="10" ry="8" fill="#8b5a2b"/><ellipse cx="12" cy="-7" rx="10" ry="8" fill="#8b5a2b"/><ellipse cx="-12" cy="-7" rx="5" ry="4" fill="#d9b48a"/><ellipse cx="12" cy="-7" rx="5" ry="4" fill="#d9b48a"/><ellipse cx="0" cy="-27" rx="17" ry="21" fill="#8b5a2b"/><ellipse cx="0" cy="-24" rx="10" ry="12" fill="#c49a6c" stroke="none"/><ellipse cx="-17" cy="-30" rx="6" ry="12" transform="rotate(20 -17 -30)" fill="#8b5a2b"/><ellipse cx="17" cy="-30" rx="6" ry="12" transform="rotate(-20 17 -30)" fill="#8b5a2b"/><circle cx="-12" cy="-71" r="6.5" fill="#8b5a2b"/><circle cx="12" cy="-71" r="6.5" fill="#8b5a2b"/><circle cx="-12" cy="-71" r="3" fill="#c49a6c" stroke="none"/><circle cx="12" cy="-71" r="3" fill="#c49a6c" stroke="none"/><circle cx="0" cy="-58" r="16" fill="#8b5a2b"/><ellipse cx="0" cy="-53" rx="7" ry="5" fill="#d9b48a"/><ellipse cx="0" cy="-55.5" rx="2.6" ry="1.8" fill="#1a1a1a" stroke="none"/><circle cx="-6" cy="-61" r="1.9" fill="#1a1a1a" stroke="none"/><circle cx="6" cy="-61" r="1.9" fill="#1a1a1a" stroke="none"/><path d="M-9 -42L0 -38L9 -42V-34L0 -38L-9 -34Z" fill="#c8102e" stroke-width="2"/></g>';
-  s+='<g transform="translate(300 404)" stroke="'+o+'" stroke-width="3" stroke-linejoin="round"><path d="M-30 0Q-34 -40 2 -44Q34 -42 34 -10L30 2Z" fill="#c8102e"/><path d="M-6 -44Q-4 -20 -10 0" stroke="#f4f4f4" stroke-width="6" fill="none"/><path d="M30 -16H46M30 -6H46M44 -20V0" stroke="#9aa3b2" stroke-width="3.5" fill="none"/><path d="M8 -20Q16 -22 18 -12" fill="none" stroke-width="2"/></g>';
+  s+='<g transform="translate(192 406)" stroke="'+o+'" stroke-width="3" stroke-linejoin="round"><path d="M-30 0Q-34 -40 2 -44Q34 -42 34 -10L30 2Z" fill="#c8102e"/><path d="M-6 -44Q-4 -20 -10 0" stroke="#f4f4f4" stroke-width="6" fill="none"/><path d="M30 -16H46M30 -6H46M44 -20V0" stroke="#9aa3b2" stroke-width="3.5" fill="none"/><path d="M8 -20Q16 -22 18 -12" fill="none" stroke-width="2"/></g>';
   return s;
  }
  function kidSVG(){
@@ -2081,6 +2116,7 @@ function xmasKit(PX){
   for(var i=0;i<1300;i++){var cx=-50+sr()*1300,cy=392+sr()*310,k2=i%4;ps[k2]+='M'+cx.toFixed(0)+' '+cy.toFixed(0)+'q2 -5 4 -1q1 3 3 -2';}
   ps.forEach(function(p,k){s+='<path d="'+p+'" stroke="'+cols[k]+'" stroke-width="2" fill="none" stroke-linecap="round"/>';});
   s+=endTable(PX);
+  s+=xmasWiring(PX);
   /* christmas tree */
   s+='<rect x="992" y="350" width="24" height="40" fill="#5a3417" stroke="'+o+'" stroke-width="3"/><path d="M962 388L976 362H1032L1046 388Z" fill="#b22222" stroke="'+o+'" stroke-width="3"/>';
   [[300,150,1004,0],[245,124,1004,1],[190,98,1004,2],[138,72,1004,3]].forEach(function(t){
@@ -2102,7 +2138,7 @@ function xmasKit(PX){
   [400,468,738,800].forEach(function(lx){s+='<path d="M'+lx+' 384L'+(lx+8)+' 384L'+(lx+6)+' 404L'+(lx+2)+' 404Z" fill="#3d2410" stroke="'+o+'" stroke-width="2"/>';});
   /* toy football helmet on the floor (plain, no logo) */
   s+='<g transform="translate(372 404)" stroke="'+o+'" stroke-width="2.5" stroke-linejoin="round"><ellipse cx="-12" cy="-7" rx="10" ry="8" fill="#8b5a2b"/><ellipse cx="12" cy="-7" rx="10" ry="8" fill="#8b5a2b"/><ellipse cx="-12" cy="-7" rx="5" ry="4" fill="#d9b48a"/><ellipse cx="12" cy="-7" rx="5" ry="4" fill="#d9b48a"/><ellipse cx="0" cy="-27" rx="17" ry="21" fill="#8b5a2b"/><ellipse cx="0" cy="-24" rx="10" ry="12" fill="#c49a6c" stroke="none"/><ellipse cx="-17" cy="-30" rx="6" ry="12" transform="rotate(20 -17 -30)" fill="#8b5a2b"/><ellipse cx="17" cy="-30" rx="6" ry="12" transform="rotate(-20 17 -30)" fill="#8b5a2b"/><circle cx="-12" cy="-71" r="6.5" fill="#8b5a2b"/><circle cx="12" cy="-71" r="6.5" fill="#8b5a2b"/><circle cx="-12" cy="-71" r="3" fill="#c49a6c" stroke="none"/><circle cx="12" cy="-71" r="3" fill="#c49a6c" stroke="none"/><circle cx="0" cy="-58" r="16" fill="#8b5a2b"/><ellipse cx="0" cy="-53" rx="7" ry="5" fill="#d9b48a"/><ellipse cx="0" cy="-55.5" rx="2.6" ry="1.8" fill="#1a1a1a" stroke="none"/><circle cx="-6" cy="-61" r="1.9" fill="#1a1a1a" stroke="none"/><circle cx="6" cy="-61" r="1.9" fill="#1a1a1a" stroke="none"/><path d="M-9 -42L0 -38L9 -42V-34L0 -38L-9 -34Z" fill="#c8102e" stroke-width="2"/></g>';
-  s+='<g transform="translate(300 404)" stroke="'+o+'" stroke-width="3" stroke-linejoin="round"><path d="M-30 0Q-34 -40 2 -44Q34 -42 34 -10L30 2Z" fill="#c8102e"/><path d="M-6 -44Q-4 -20 -10 0" stroke="#f4f4f4" stroke-width="6" fill="none"/><path d="M30 -16H46M30 -6H46M44 -20V0" stroke="#9aa3b2" stroke-width="3.5" fill="none"/><path d="M8 -20Q16 -22 18 -12" fill="none" stroke-width="2"/></g>';
+  s+='<g transform="translate(192 406)" stroke="'+o+'" stroke-width="3" stroke-linejoin="round"><path d="M-30 0Q-34 -40 2 -44Q34 -42 34 -10L30 2Z" fill="#c8102e"/><path d="M-6 -44Q-4 -20 -10 0" stroke="#f4f4f4" stroke-width="6" fill="none"/><path d="M30 -16H46M30 -6H46M44 -20V0" stroke="#9aa3b2" stroke-width="3.5" fill="none"/><path d="M8 -20Q16 -22 18 -12" fill="none" stroke-width="2"/></g>';
   return s;
  }
  function treeLights(clk){var c=['#ff3b3b','#3bd477','#3b8bff','#ffb020','#ff6bd6'],ph=Math.floor(clk*2.2),s='';TL.forEach(function(l){var on=(l[2]+ph)%3!==0;s+='<circle cx="'+l[0].toFixed(0)+'" cy="'+l[1].toFixed(0)+'" r="'+(on?5:3.5)+'" fill="'+c[l[2]%5]+'" opacity="'+(on?1:.45)+'"/>'+(on?'<circle cx="'+l[0].toFixed(0)+'" cy="'+l[1].toFixed(0)+'" r="11" fill="'+c[l[2]%5]+'" opacity=".22"/>':'');});return s;}

@@ -1549,6 +1549,45 @@ reset();render();
  return{state:function(){return T;},resetScene:function(){reset();render();},adv:function(t){var n=Math.round(t*120);for(var i=0;i<n;i++){clk+=1/120;step(1/120);}},startRun:startRun,releaseRun:releaseRun};
 }
 
+/* the living-room ceiling light: a hanging eight-sided stained-glass pendant on two chains
+   (cream and amber slag-glass panels, a red hammered-glass band, scalloped skirt, petal crown) */
+function glassLamp(PX){
+ var L='#1e1610',CX=600,s='';
+ function X(t,w){return (CX+t*w/2).toFixed(1);}
+ var T=[-1,-.707,0,.707,1];
+ s+='<defs><pattern id="hg'+PX+'" width="17" height="13" patternUnits="userSpaceOnUse"><rect width="17" height="13" fill="#b8341b"/><path d="M1 3q3-2 6 0t6 0M3 9q3-2 6 0t7 0" stroke="#e25d2c" stroke-width="1.4" fill="none" opacity=".55"/><path d="M0 6q4 2 8 0t9 1M2 12q3 1 6-1" stroke="#7a1a0c" stroke-width="1.3" fill="none" opacity=".5"/></pattern>'
+  +'<radialGradient id="lg'+PX+'" cx="50%" cy="40%" r="50%"><stop offset="0" stop-color="#ffd99a" stop-opacity=".75"/><stop offset=".55" stop-color="#ffc979" stop-opacity=".25"/><stop offset="1" stop-color="#ffc979" stop-opacity="0"/></radialGradient></defs>';
+ /* warm glow thrown on the ceiling */
+ s+='<ellipse cx="'+CX+'" cy="-120" rx="290" ry="200" fill="url(#lg'+PX+')"/>';
+ /* two chains running up off the top */
+ [-12,12].forEach(function(dx){for(var y=-372,i=0;y<-198;y+=13,i++){var x=CX+dx*(1-(y+372)/600);
+  s+=i%2?'<rect x="'+(x-1.6).toFixed(1)+'" y="'+y+'" width="3.2" height="14" rx="1.6" fill="'+L+'"/>':'<ellipse cx="'+x.toFixed(1)+'" cy="'+(y+7)+'" rx="4.6" ry="8" fill="none" stroke="'+L+'" stroke-width="2.6"/>';}});
+ /* petal crown: flares out from the shade top */
+ var cb=-180,ct=-212,wb=70,wt=132,cc=['#f1e2c4','#6e3a1f','#f1e2c4','#6e3a1f'];
+ for(var i=0;i<4;i++){var a=T[i],b=T[i+1],m=(a+b)/2;
+  s+='<path d="M'+X(a,wb)+' '+cb+'L'+X(a,wt)+' '+ct+'Q'+X(m,wt)+' '+(ct+7)+' '+X(b,wt)+' '+ct+'L'+X(b,wb)+' '+cb+'Z" fill="'+cc[i]+'" stroke="'+L+'" stroke-width="3" stroke-linejoin="round"/>';}
+ /* upper shade: four visible slag-glass panels */
+ var ut=cb,ub=-108,wu=246,uc=['#7a4122','#f3d9a6','#b5452a','#f3d9a6'];
+ for(i=0;i<4;i++){a=T[i];b=T[i+1];
+  s+='<path d="M'+X(a,wb)+' '+ut+'L'+X(a,wu)+' '+ub+'L'+X(b,wu)+' '+ub+'L'+X(b,wb)+' '+ut+'Z" fill="'+(i===2?'url(#hg'+PX+')':uc[i])+'"/>';}
+ /* slag streaks in the cream panels */
+ [[-.5,'#e3a965'],[.83,'#e3a965']].forEach(function(q){var x0=+X(q[0],wb),x1=+X(q[0],wu);
+  s+='<path d="M'+(x0+2)+' '+(ut+8)+'Q'+(x1+10)+' -140 '+(x1+4)+' '+(ub-4)+'M'+(x0-4)+' '+(ut+14)+'Q'+(x1-8)+' -146 '+(x1-10)+' '+(ub-6)+'" stroke="'+q[1]+'" stroke-width="2" fill="none" opacity=".7"/>';});
+ for(i=0;i<5;i++)s+='<path d="M'+X(T[i],wb)+' '+ut+'L'+X(T[i],wu)+' '+ub+'" stroke="'+L+'" stroke-width="3"/>';
+ s+='<path d="M'+X(-1,wb)+' '+ut+'H'+X(1,wb)+'" stroke="'+L+'" stroke-width="3.5"/>';
+ /* red hammered-glass band + scalloped skirt */
+ var bt=ub,bb=-42,lc=['#f3d9a6','#c06a2c','#f3d9a6','#c06a2c'];
+ for(i=0;i<4;i++){a=T[i];b=T[i+1];var m2=X((a+b)/2,wu),dip=(b-a)>.5?13:7;
+  s+='<rect x="'+X(a,wu)+'" y="'+bt+'" width="'+(+X(b,wu)-+X(a,wu)).toFixed(1)+'" height="'+(bb-bt)+'" fill="'+((i===0||i===3)?'#5e2214':'url(#hg'+PX+')')+'"/>';
+  /* lower panel under the arc, with a curved bottom */
+  s+='<path d="M'+X(a,wu)+' -70Q'+m2+' '+(-70-dip*2)+' '+X(b,wu)+' -70L'+X(b,wu)+' '+bb+'Q'+m2+' '+(bb+dip*1.4)+' '+X(a,wu)+' '+bb+'Z" fill="'+lc[i]+'" stroke="'+L+'" stroke-width="3" stroke-linejoin="round"/>';
+  if(lc[i]==='#c06a2c')s+='<path d="M'+(+m2-10)+' -76L'+(+m2-6)+' '+(bb+4)+'M'+(+m2+8)+' -74L'+(+m2+12)+' '+(bb+2)+'" stroke="#e8a560" stroke-width="1.8" opacity=".7"/>';}
+ for(i=0;i<5;i++)s+='<path d="M'+X(T[i],wu)+' '+bt+'V'+(bb+1)+'" stroke="'+L+'" stroke-width="3"/>';
+ s+='<path d="M'+X(-1,wu)+' '+bt+'H'+X(1,wu)+'" stroke="'+L+'" stroke-width="3.5"/>';
+ /* bulb light spilling out under the shade */
+ s+='<ellipse cx="'+CX+'" cy="'+(bb+14)+'" rx="95" ry="12" fill="#fff1c9" opacity=".35"/>';
+ return s;
+}
 /* ================= Level 7: Where it all started =================
    Intro: first person, eyes blink open on the living-room floor, sit up, the console TV is showing
    the end of the Dec. 23, 1990 Bills-Dolphins game (Bills 24, Dolphins 14, AFC East clinched) with fans storming the goal post.
@@ -1616,7 +1655,7 @@ function makeLevel7(PX){
  function roomStatic(){
   var o='#2a170a',s='';
   /* popcorn ceiling + light */
-  s+='<rect x="-60" y="-500" width="1320" height="545" fill="url(#pc'+PX+')"/><circle cx="600" cy="-150" r="150" fill="url(#lamp'+PX+')"/><ellipse cx="600" cy="-150" rx="70" ry="24" fill="#f8f2df" stroke="#b9ad92" stroke-width="3"/><circle cx="600" cy="-150" r="5" fill="#b9ad92"/>';
+  s+='<rect x="-60" y="-500" width="1320" height="545" fill="url(#pc'+PX+')"/>'+glassLamp(PX);
   /* wood paneling */
   s+='<rect x="-60" y="40" width="1320" height="350" fill="#7a5232"/>';
   for(var x=-40;x<1260;x+=64){s+='<path d="M'+x+' 40V388" stroke="#4e321c" stroke-width="3"/>';for(var g=0;g<3;g++){var gx=x+12+g*16;s+='<path d="M'+gx+' 40Q'+(gx+5)+' 140 '+(gx-3)+' 220T'+(gx+2)+' 388" stroke="#93673f" stroke-width="1.6" fill="none" opacity=".45"/>';}}
@@ -1994,7 +2033,7 @@ function xmasKit(PX){
  function roomStatic8(){   /* the same living room as level 7, two days later */
   var o='#2a170a',s='';
   /* popcorn ceiling + light */
-  s+='<rect x="-60" y="-500" width="1320" height="545" fill="url(#pc'+PX+')"/><circle cx="600" cy="-150" r="150" fill="url(#lamp'+PX+')"/><ellipse cx="600" cy="-150" rx="70" ry="24" fill="#f8f2df" stroke="#b9ad92" stroke-width="3"/><circle cx="600" cy="-150" r="5" fill="#b9ad92"/>';
+  s+='<rect x="-60" y="-500" width="1320" height="545" fill="url(#pc'+PX+')"/>'+glassLamp(PX);
   /* wood paneling */
   s+='<rect x="-60" y="40" width="1320" height="350" fill="#7a5232"/>';
   for(var x=-40;x<1260;x+=64){s+='<path d="M'+x+' 40V388" stroke="#4e321c" stroke-width="3"/>';for(var g=0;g<3;g++){var gx=x+12+g*16;s+='<path d="M'+gx+' 40Q'+(gx+5)+' 140 '+(gx-3)+' 220T'+(gx+2)+' 388" stroke="#93673f" stroke-width="1.6" fill="none" opacity=".45"/>';}}

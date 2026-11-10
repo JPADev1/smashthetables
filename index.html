@@ -3,6 +3,11 @@
 <style>[hidden]{display:none!important}</style></head><body>
 
 <style>
+.musbtn{display:none;align-items:center;gap:8px;font:800 .8rem var(--body);color:var(--snow);background:var(--panel2);border:2px solid var(--ink);border-radius:10px;padding:8px 14px;cursor:pointer;letter-spacing:.04em}
+.musbtn.ready{display:inline-flex}.musbtn svg{width:16px;height:16px}.musbtn .x{display:none}
+.musbtn[aria-pressed="false"]{color:var(--mute)}.musbtn[aria-pressed="false"] .x{display:inline}.musbtn[aria-pressed="false"] .w{display:none}
+.musbtn:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.hud .musbtn{font-size:.66rem;padding:4px 8px;border-radius:8px}
 /* Layout: a one-screen arcade cabinet. HUD bar, wide stage with the scene, one big button underneath. Single dark look on purpose. */
 :root{--night:#0a1630;--panel:#12224c;--panel2:#1a2e63;--ink:#0b1b3a;--blue:#2a63e8;--red:#e0263f;--redDeep:#8a1226;--snow:#f4f8ff;--mute:#9db0da;--gold:#ffcf4a;--ok:#3bd477;--bad:#ff5468;
  --display:'Lilita One','Impact','Arial Black',system-ui,sans-serif;--body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;color-scheme:dark}
@@ -189,7 +194,7 @@ html.fs-on .rot,html.standalone .rot{display:none!important}
  <header class="hud" id="hud" hidden>
   <div class="lvl" id="hLevel"></div>
   <div class="pips" id="hPips" aria-label="Attempts"></div>
-  <div class="right"><span class="pen" id="hPen"></span><div class="score" id="hScore">0<small>SCORE</small></div><button class="fsbtn tlonly" id="fsHud" type="button" aria-label="Full screen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button class="swap tlonly" id="handSw" type="button" aria-label="Move thumb pad to the other side">Thumb ⇄</button><button class="quit" id="quit" type="button">End run</button></div>
+  <div class="right"><span class="pen" id="hPen"></span><div class="score" id="hScore">0<small>SCORE</small></div><button class="fsbtn tlonly" id="fsHud" type="button" aria-label="Full screen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button class="swap tlonly" id="handSw" type="button" aria-label="Move thumb pad to the other side">Thumb ⇄</button><button class="musbtn" id="musHud" type="button" aria-pressed="true" aria-label="Music"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg></button><button class="quit" id="quit" type="button">End run</button></div>
  </header>
  <div id="stage" class="fin">
   <div class="anim" id="tbl"></div><div class="anim" id="L2tbl" hidden></div><div class="anim" id="L3tbl" hidden></div><div class="anim" id="L4tbl" hidden></div><div class="anim" id="L5tbl" hidden></div><div class="anim" id="L6tbl" hidden></div><div class="anim" id="L7tbl" hidden></div><div class="anim" id="L8tbl" hidden></div><div class="anim" id="L9tbl" hidden></div><div class="anim" id="L10tbl" hidden></div><div class="anim" id="L11tbl" hidden></div>
@@ -199,6 +204,7 @@ html.fs-on .rot,html.standalone .rot{display:none!important}
     <h1 class="logo"><span class="a">Smash the</span><span class="b">Tables</span></h1>
     <div class="btnrow"><button class="btn" id="play" type="button">Play</button><button class="btn alt" id="hsOpen" type="button">High scores</button></div>
     <button class="fsbtn" id="fsGo" type="button"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>Play full screen</button>
+    <button class="musbtn" id="musGo" type="button" aria-pressed="true"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg><span class="lbl">Music: On</span></button>
     <div class="hand">Thumb pad <span class="seg" role="group" aria-label="Thumb pad side"><button type="button" data-hand="left" aria-pressed="false">Left</button><button type="button" data-hand="right" aria-pressed="true">Right</button></span></div>
     <p class="rot">Rotate your phone sideways for full screen with a thumb pad.</p>
     <p class="fine">Fan-made game. Not affiliated with the Buffalo Bills or the NFL.</p>
@@ -4380,6 +4386,42 @@ SC[0].resetScene();
 /* testing shortcut: open the page with #level1 ... #level7 to jump straight to that level (cutscene included) */
 (function(){var m=/^#level([0-9]{1,2})$/.exec(location.hash||'');if(!m)return;var i=Math.min(LV.length,+m[1])-1;newRun();if(i>0)showLevel(i);})();
 window.__game={run:run,SC:SC,CFG:CFG,get:function(){return run;}};
+</script>
+<script>
+/* Music player: plays theme.mp3 (or theme.ogg) from the site root on a loop if that file exists.
+   The music buttons stay hidden until a track loads. On/off choice is remembered per browser. */
+(function(){
+  var FILES=['theme.mp3','theme.ogg'], VOL=0.45;
+  var btns=[document.getElementById('musGo'),document.getElementById('musHud')];
+  var on=true; try{on=localStorage.getItem('stt_music')!=='off';}catch(e){}
+  var AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
+  var ctx=null,gain=null,buf=null,src=null,bytes=null;
+  function paint(){btns.forEach(function(b){if(!b)return;b.setAttribute('aria-pressed',on?'true':'false');
+    b.setAttribute('aria-label',on?'Music on, tap to turn off':'Music off, tap to turn on');
+    var l=b.querySelector('.lbl'); if(l)l.textContent='Music: '+(on?'On':'Off');});}
+  function tryFetch(i){ if(i>=FILES.length)return;
+    fetch(FILES[i]).then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();})
+      .then(function(ab){bytes=ab;btns.forEach(function(b){b&&b.classList.add('ready');});})
+      .catch(function(){tryFetch(i+1);}); }
+  function ensure(cb){
+    if(!bytes)return;
+    if(!ctx){ctx=new AC();gain=ctx.createGain();gain.gain.value=0;gain.connect(ctx.destination);}
+    if(ctx.state==='suspended')ctx.resume();
+    if(buf)return cb();
+    ctx.decodeAudioData(bytes.slice(0),function(b){buf=b;cb();},function(){btns.forEach(function(x){x&&x.classList.remove('ready');});});
+  }
+  function start(){ensure(function(){
+    if(!src){src=ctx.createBufferSource();src.buffer=buf;src.loop=true;src.connect(gain);src.start();}
+    gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(VOL,ctx.currentTime,.15);});}
+  function stop(){if(ctx&&gain){gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(0,ctx.currentTime,.08);}}
+  btns.forEach(function(b){if(!b)return;b.addEventListener('click',function(e){e.stopPropagation();
+    on=!on;try{localStorage.setItem('stt_music',on?'on':'off');}catch(_){} paint(); on?start():stop();});});
+  /* browsers only allow sound after a tap or key press */
+  function firstGesture(){ if(on&&bytes)start(); }
+  ['pointerdown','keydown','touchend'].forEach(function(ev){document.addEventListener(ev,firstGesture,{capture:true,passive:true});});
+  document.addEventListener('visibilitychange',function(){if(!ctx)return;document.hidden?ctx.suspend():(on&&ctx.resume());});
+  paint(); tryFetch(0);
+})();
 </script>
 <!-- Cloudflare Web Analytics --><script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "97caddcef9be4d0288ae9d10bb8a82b4"}'></script><!-- End Cloudflare Web Analytics -->
 </body></html>

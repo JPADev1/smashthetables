@@ -2825,7 +2825,7 @@ function size(){D=Math.min(2,window.devicePixelRatio||1);cv.width=1200*D;cv.heig
 size();window.addEventListener('resize',size);
 
 var O='#0b1b3a',PS='"Press Start 2P",monospace';
-var CUT1=7,TYPE0=7.42,CPS=43,CUT2=13.72;   /* sideline speech shortened 30% (was TYPE0 7.6, CPS 30, CUT2 16.6) */
+var CUT1=4.9,TYPE0=5.5,CPS=30,CUT2=14.5;   /* "Press Start" hold before the speech cut 30% (CUT1 was 7); speech pace unchanged (9.6 s) */
 var QUOTE="They put their pants on one leg at a time, just like we do. They bleed red, just like we do. We're going to find out how fast they can run when they're getting hit in the mouth.";
 
 /* seeded random */
@@ -3118,7 +3118,7 @@ function hiSideline(c,t){
   var n=Math.max(0,Math.min(QUOTE.length,Math.floor((t-TYPE0)*CPS)));
   /* bubble */
   c.font='14px '+PS;c.textAlign='left';c.textBaseline='top';
-  var lines=wrap(c,QUOTE,320),lh=25,bx=448,by=40,bw=372,bh=lines.length*lh+34;
+  var lines=wrap(c,QUOTE,320),lh=25,bx=448,by=100,bw=372,bh=lines.length*lh+34;
   if(t>=TYPE0-.25){
     var pop=ease((t-(TYPE0-.25))/.25),cxp=bx+bw/2,cyp=by+bh/2;
     c.save();c.translate(cxp,cyp);c.scale(.6+.4*pop,.6+.4*pop);c.translate(-cxp,-cyp);c.globalAlpha=pop;

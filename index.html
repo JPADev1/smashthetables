@@ -4389,37 +4389,38 @@ window.__game={run:run,SC:SC,CFG:CFG,get:function(){return run;}};
 </script>
 <script>
 /* Music player: plays theme.mp3 (or theme.ogg) from the site root on a loop if that file exists.
-   The music buttons stay hidden until a track loads. On/off choice is remembered per browser. */
+   The music buttons stay hidden until a track loads. On/off choice is remembered per browser.
+   iPhone notes: audioSession 'playback' lets it play with the ring/silent switch on silent (iOS 16.4+),
+   and the audio context is unlocked inside the tap itself, which Safari requires. */
 (function(){
   var FILES=['theme.mp3','theme.ogg'], VOL=0.45;
   var btns=[document.getElementById('musGo'),document.getElementById('musHud')];
   var on=true; try{on=localStorage.getItem('stt_music')!=='off';}catch(e){}
   var AC=window.AudioContext||window.webkitAudioContext; if(!AC)return;
-  var ctx=null,gain=null,buf=null,src=null,bytes=null;
+  try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
+  var ctx=new AC(), gain=ctx.createGain(), buf=null, src=null, unlocked=false;
+  gain.gain.value=0; gain.connect(ctx.destination);
   function paint(){btns.forEach(function(b){if(!b)return;b.setAttribute('aria-pressed',on?'true':'false');
     b.setAttribute('aria-label',on?'Music on, tap to turn off':'Music off, tap to turn on');
     var l=b.querySelector('.lbl'); if(l)l.textContent='Music: '+(on?'On':'Off');});}
+  function decode(ab){return new Promise(function(res,rej){var r=ctx.decodeAudioData(ab,res,rej);if(r&&r.then)r.then(res,rej);});}
   function tryFetch(i){ if(i>=FILES.length)return;
-    fetch(FILES[i]).then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();})
-      .then(function(ab){bytes=ab;btns.forEach(function(b){b&&b.classList.add('ready');});})
+    fetch(FILES[i]).then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();}).then(decode)
+      .then(function(b){buf=b;btns.forEach(function(x){x&&x.classList.add('ready');});if(on&&unlocked)start();})
       .catch(function(){tryFetch(i+1);}); }
-  function ensure(cb){
-    if(!bytes)return;
-    if(!ctx){ctx=new AC();gain=ctx.createGain();gain.gain.value=0;gain.connect(ctx.destination);}
-    if(ctx.state==='suspended')ctx.resume();
-    if(buf)return cb();
-    ctx.decodeAudioData(bytes.slice(0),function(b){buf=b;cb();},function(){btns.forEach(function(x){x&&x.classList.remove('ready');});});
+  function unlock(){ /* must run synchronously inside a tap/click/key handler */
+    if(ctx.state!=='running')ctx.resume();
+    if(!unlocked){var s=ctx.createBufferSource();s.buffer=ctx.createBuffer(1,1,22050);s.connect(ctx.destination);s.start(0);unlocked=true;}
   }
-  function start(){ensure(function(){
+  function start(){ if(!buf)return;
     if(!src){src=ctx.createBufferSource();src.buffer=buf;src.loop=true;src.connect(gain);src.start();}
-    gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(VOL,ctx.currentTime,.15);});}
-  function stop(){if(ctx&&gain){gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(0,ctx.currentTime,.08);}}
-  btns.forEach(function(b){if(!b)return;b.addEventListener('click',function(e){e.stopPropagation();
+    gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(VOL,ctx.currentTime,.15);}
+  function stop(){gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(0,ctx.currentTime,.08);}
+  btns.forEach(function(b){if(!b)return;b.addEventListener('click',function(e){e.stopPropagation();unlock();
     on=!on;try{localStorage.setItem('stt_music',on?'on':'off');}catch(_){} paint(); on?start():stop();});});
-  /* browsers only allow sound after a tap or key press */
-  function firstGesture(){ if(on&&bytes)start(); }
-  ['pointerdown','keydown','touchend'].forEach(function(ev){document.addEventListener(ev,firstGesture,{capture:true,passive:true});});
-  document.addEventListener('visibilitychange',function(){if(!ctx)return;document.hidden?ctx.suspend():(on&&ctx.resume());});
+  function gesture(){ unlock(); if(on)start(); }
+  ['touchend','click','keydown'].forEach(function(ev){document.addEventListener(ev,gesture,{capture:true,passive:true});});
+  document.addEventListener('visibilitychange',function(){document.hidden?ctx.suspend():(on&&unlocked&&ctx.resume());});
   paint(); tryFetch(0);
 })();
 </script>

@@ -3,6 +3,12 @@
 <style>[hidden]{display:none!important}</style></head><body>
 
 <style>
+.eq{display:none;align-items:center;gap:6px}.eq.ready{display:inline-flex}
+.knob{display:flex;flex-direction:column;align-items:center;gap:1px;cursor:ns-resize;touch-action:none;background:none;border:0;padding:0;color:var(--mute);font:800 .55rem var(--body);letter-spacing:.08em}
+.knob svg{width:28px;height:28px;display:block}.knob:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:6px}
+.knob.lit{color:var(--gold)}
+.hud .quit{white-space:nowrap}
+@media (max-width:900px){.hud .right{gap:8px}.knob svg{width:22px;height:22px}.eq{gap:3px}}
 .musbtn{display:none;align-items:center;gap:8px;font:800 .8rem var(--body);color:var(--snow);background:var(--panel2);border:2px solid var(--ink);border-radius:10px;padding:8px 14px;cursor:pointer;letter-spacing:.04em}
 .musbtn.ready{display:inline-flex}.musbtn svg{width:16px;height:16px}.musbtn .x{display:none}
 .musbtn[aria-pressed="false"]{color:var(--mute)}.musbtn[aria-pressed="false"] .x{display:inline}.musbtn[aria-pressed="false"] .w{display:none}
@@ -194,7 +200,7 @@ html.fs-on .rot,html.standalone .rot{display:none!important}
  <header class="hud" id="hud" hidden>
   <div class="lvl" id="hLevel"></div>
   <div class="pips" id="hPips" aria-label="Attempts"></div>
-  <div class="right"><span class="pen" id="hPen"></span><div class="score" id="hScore">0<small>SCORE</small></div><button class="fsbtn tlonly" id="fsHud" type="button" aria-label="Full screen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button class="swap tlonly" id="handSw" type="button" aria-label="Move thumb pad to the other side">Thumb ⇄</button><button class="musbtn" id="musHud" type="button" aria-pressed="true" aria-label="Music"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg></button><button class="quit" id="quit" type="button">End run</button></div>
+  <div class="right"><span class="pen" id="hPen"></span><div class="score" id="hScore">0<small>SCORE</small></div><button class="fsbtn tlonly" id="fsHud" type="button" aria-label="Full screen"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button><button class="swap tlonly" id="handSw" type="button" aria-label="Move thumb pad to the other side">Thumb ⇄</button><span class="eq" id="eqHud" role="group" aria-label="Music tone"></span><button class="musbtn" id="musHud" type="button" aria-pressed="true" aria-label="Music"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path class="w" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12"/><path class="x" d="M17 9l5 6M22 9l-5 6"/></svg></button><button class="quit" id="quit" type="button">End run</button></div>
  </header>
  <div id="stage" class="fin">
   <div class="anim" id="tbl"></div><div class="anim" id="L2tbl" hidden></div><div class="anim" id="L3tbl" hidden></div><div class="anim" id="L4tbl" hidden></div><div class="anim" id="L5tbl" hidden></div><div class="anim" id="L6tbl" hidden></div><div class="anim" id="L7tbl" hidden></div><div class="anim" id="L8tbl" hidden></div><div class="anim" id="L9tbl" hidden></div><div class="anim" id="L10tbl" hidden></div><div class="anim" id="L11tbl" hidden></div>
@@ -2819,7 +2825,7 @@ function size(){D=Math.min(2,window.devicePixelRatio||1);cv.width=1200*D;cv.heig
 size();window.addEventListener('resize',size);
 
 var O='#0b1b3a',PS='"Press Start 2P",monospace';
-var CUT1=7,TYPE0=7.6,CPS=30,CUT2=16.6;
+var CUT1=7,TYPE0=7.42,CPS=43,CUT2=13.72;   /* sideline speech shortened 30% (was TYPE0 7.6, CPS 30, CUT2 16.6) */
 var QUOTE="They put their pants on one leg at a time, just like we do. They bleed red, just like we do. We're going to find out how fast they can run when they're getting hit in the mouth.";
 
 /* seeded random */
@@ -3112,7 +3118,7 @@ function hiSideline(c,t){
   var n=Math.max(0,Math.min(QUOTE.length,Math.floor((t-TYPE0)*CPS)));
   /* bubble */
   c.font='14px '+PS;c.textAlign='left';c.textBaseline='top';
-  var lines=wrap(c,QUOTE,320),lh=25,bx=448,by=16,bw=372,bh=lines.length*lh+34;
+  var lines=wrap(c,QUOTE,320),lh=25,bx=448,by=40,bw=372,bh=lines.length*lh+34;
   if(t>=TYPE0-.25){
     var pop=ease((t-(TYPE0-.25))/.25),cxp=bx+bw/2,cyp=by+bh/2;
     c.save();c.translate(cxp,cyp);c.scale(.6+.4*pop,.6+.4*pop);c.translate(-cxp,-cyp);c.globalAlpha=pop;
@@ -4400,20 +4406,48 @@ window.__game={run:run,SC:SC,CFG:CFG,get:function(){return run;}};
   try{if(navigator.audioSession)navigator.audioSession.type='playback';}catch(e){}
   var ctx=new AC(), gain=ctx.createGain(), buf=null, src=null, unlocked=false;
   gain.gain.value=0; gain.connect(ctx.destination);
+  /* tone knobs: low shelf 200 Hz, mid peak 1 kHz, high shelf 4 kHz, each -15..+15 dB; drag up/down, arrow keys, double-tap resets */
+  var BANDS=[{k:'low',l:'LOW',type:'lowshelf',f:200},{k:'mid',l:'MID',type:'peaking',f:1000,q:.9},{k:'high',l:'HIGH',type:'highshelf',f:4000}],MAXDB=15;
+  var eqv={}; try{eqv=JSON.parse(localStorage.getItem('stt_eq')||'{}')||{};}catch(e){eqv={};}
+  var first=null,last=null;
+  BANDS.forEach(function(B){var f=ctx.createBiquadFilter();f.type=B.type;f.frequency.value=B.f;if(B.q)f.Q.value=B.q;
+    B.v=Math.max(-MAXDB,Math.min(MAXDB,+eqv[B.k]||0));f.gain.value=B.v;B.node=f;if(last)last.connect(f);else first=f;last=f;});
+  last.connect(gain);
+  var eqBox=document.getElementById('eqHud');
+  function drawKnob(B){var a=-135+270*(B.v+MAXDB)/(2*MAXDB),r=a*Math.PI/180,x=14+8*Math.sin(r),y=14-8*Math.cos(r);
+    B.el.querySelector('.ptr').setAttribute('x2',x.toFixed(1));B.el.querySelector('.ptr').setAttribute('y2',y.toFixed(1));
+    B.el.setAttribute('aria-valuenow',Math.round(B.v));B.el.setAttribute('aria-valuetext',(B.v>0?'+':'')+Math.round(B.v)+' dB');
+    B.el.classList.toggle('lit',Math.round(B.v)!==0);}
+  function setBand(B,v){B.v=Math.max(-MAXDB,Math.min(MAXDB,v));B.node.gain.setTargetAtTime(B.v,ctx.currentTime,.03);drawKnob(B);
+    eqv[B.k]=Math.round(B.v*10)/10;try{localStorage.setItem('stt_eq',JSON.stringify(eqv));}catch(e){}}
+  if(eqBox)BANDS.forEach(function(B){
+    var el=document.createElement('button');el.type='button';el.className='knob';el.setAttribute('role','slider');
+    el.setAttribute('aria-label',B.l.toLowerCase()+' tone');el.setAttribute('aria-valuemin',-MAXDB);el.setAttribute('aria-valuemax',MAXDB);
+    el.innerHTML='<svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="11.5" fill="#1a2e63" stroke="#0b1b3a" stroke-width="2.5"/><circle cx="14" cy="14" r="11.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-dasharray="2 3" opacity=".6"/><line class="ptr" x1="14" y1="14" x2="14" y2="6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/></svg>'+B.l;
+    B.el=el;drawKnob(B);eqBox.appendChild(el);
+    var y0=0,v0=0,drag=false,lastTap=0;
+    el.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();drag=true;y0=e.clientY;v0=B.v;try{el.setPointerCapture(e.pointerId);}catch(_){}
+      var n=Date.now();if(n-lastTap<350)setBand(B,0);lastTap=n;});
+    el.addEventListener('pointermove',function(e){if(drag)setBand(B,v0+(y0-e.clientY)*(2*MAXDB/110));});
+    ['pointerup','pointercancel'].forEach(function(ev){el.addEventListener(ev,function(e){e.stopPropagation();drag=false;});});
+    el.addEventListener('click',function(e){e.stopPropagation();});
+    el.addEventListener('keydown',function(e){var d={ArrowUp:1,ArrowRight:1,ArrowDown:-1,ArrowLeft:-1}[e.key];
+      if(e.key==='Home'||e.key==='0'){setBand(B,0);}else if(!d)return;else setBand(B,B.v+d);e.preventDefault();e.stopPropagation();});
+  });
   function paint(){btns.forEach(function(b){if(!b)return;b.setAttribute('aria-pressed',on?'true':'false');
     b.setAttribute('aria-label',on?'Music on, tap to turn off':'Music off, tap to turn on');
     var l=b.querySelector('.lbl'); if(l)l.textContent='Music: '+(on?'On':'Off');});}
   function decode(ab){return new Promise(function(res,rej){var r=ctx.decodeAudioData(ab,res,rej);if(r&&r.then)r.then(res,rej);});}
   function tryFetch(i){ if(i>=FILES.length)return;
     fetch(FILES[i]).then(function(r){if(!r.ok)throw 0;return r.arrayBuffer();}).then(decode)
-      .then(function(b){buf=b;btns.forEach(function(x){x&&x.classList.add('ready');});if(on&&unlocked)start();})
+      .then(function(b){buf=b;btns.concat([eqBox]).forEach(function(x){x&&x.classList.add('ready');});if(on&&unlocked)start();})
       .catch(function(){tryFetch(i+1);}); }
   function unlock(){ /* must run synchronously inside a tap/click/key handler */
     if(ctx.state!=='running')ctx.resume();
     if(!unlocked){var s=ctx.createBufferSource();s.buffer=ctx.createBuffer(1,1,22050);s.connect(ctx.destination);s.start(0);unlocked=true;}
   }
   function start(){ if(!buf)return;
-    if(!src){src=ctx.createBufferSource();src.buffer=buf;src.loop=true;src.connect(gain);src.start();}
+    if(!src){src=ctx.createBufferSource();src.buffer=buf;src.loop=true;src.connect(first);src.start();}
     gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(VOL,ctx.currentTime,.15);}
   function stop(){gain.gain.cancelScheduledValues(ctx.currentTime);gain.gain.setTargetAtTime(0,ctx.currentTime,.08);}
   btns.forEach(function(b){if(!b)return;b.addEventListener('click',function(e){e.stopPropagation();unlock();

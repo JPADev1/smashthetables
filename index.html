@@ -6593,16 +6593,42 @@ function loLocker(t,talking){
   /* bench */
   R(0,118,280,6,'#7a5a40');R(0,124,280,2,'#4a3828');
   /* camera light glow on him */
-  for(var r=70;r>0;r-=10)E(96,96,r,r*.8,'rgba(255,240,200,'+(.025).toFixed(3)+')');
+  for(var r=70;r>0;r-=10)E(96,96,r,r*.8,'rgba(255,240,200,.025)');
   draw75Beaten(t,talking);
-  /* microphones: foam heads on poles, plain colored flags, from the left, the right and below */
-  mic(30,150,70,100,'#c8102e',t,0);mic(170,160,118,104,'#1747c4',t,1);mic(60,190,82,112,'#ffd23f',t,2);mic(150,190,108,114,'#3fd09a',t,3);mic(-10,120,60,96,'#f4f4f4',t,4);
 }
-function mic(x0,y0,x1,y1,flag,t,i){
-  var j=Math.sin(t*2+i)*1.2;x1+=j;y1+=j*.5;
-  var n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));for(var k=0;k<=n;k++){var u=k/n;R(x0+(x1-x0)*u-1,y0+(y1-y0)*u-1,3,3,'#1a1a1a');}
-  var fx=lerp(x0,x1,.72),fy=lerp(y0,y1,.72);R(fx-6,fy-5,12,10,O);R(fx-5,fy-4,10,8,flag);R(fx-5,fy-4,10,2,'rgba(255,255,255,.35)');
-  E(x1,y1,6,6,O);E(x1,y1,5,5,'#2a2a2a');R(x1-3,y1-3,2,2,'#4a4a4a');
+/* tight shot: draw the room and #75 into a side buffer, then blow up the middle of it (chunky pixels, like a camera zoom) */
+var LKC=document.createElement('canvas');LKC.width=280;LKC.height=190;var LKX=LKC.getContext('2d');
+var ZOOM={x:36,y:24,w:186,h:126};
+function loLockerZoom(t,talking){
+  var keep=L;L=LKX;L.clearRect(0,0,280,190);loLocker(t,talking);L=keep;
+  L.imageSmoothingEnabled=false;L.drawImage(LKC,ZOOM.x,ZOOM.y,ZOOM.w,ZOOM.h,0,0,280,190);
+  /* the scrum: four old-school TV mics pushed up under his chin */
+  mic2(-6,150,60,112,'#c8102e',t,0);
+  mic2(290,144,124,110,'#1747c4',t,1);
+  mic2(64,198,80,128,'#ffd23f',t,2);
+  mic2(142,198,106,130,'#3fd09a',t,3);
+}
+/* an old-school TV mic: round mesh head, chrome ring, a cube flag on the handle, a reporter's hand and sleeve */
+function mic2(ex,ey,hx,hy,col,t,i){
+  var j=Math.sin(t*1.7+i*1.3)*1.2;hx+=j;hy+=j*.6;
+  var dx=hx-ex,dy=hy-ey,l=Math.hypot(dx,dy),ux=dx/l,uy=dy/l;
+  function seg(a,b,w,c){var n=Math.ceil(Math.abs(b-a)*l)+1;for(var k=0;k<=n;k++){var u=a+(b-a)*k/n;R(ex+dx*u-w/2,ey+dy*u-w/2,w,w,c);}}
+  /* sleeve and hand */
+  seg(0,.42,11,O);seg(0,.42,9,['#3a3f4b','#2a2e36','#4a4038','#2e3a52'][i]);
+  var hxx=ex+dx*.47,hyy=ey+dy*.47;E(hxx,hyy,6,5,O);E(hxx,hyy,5,4,['#e9b48c','#7a4a30','#c98f66','#e9b48c'][i]);
+  /* handle */
+  seg(.4,.9,6,O);seg(.4,.9,4,'#1a1a1a');seg(.4,.9,1,'#4a4a4a');
+  /* cube flag around the handle: front, top and side faces (plain colors, no marks) */
+  var cx=Math.round(ex+dx*.66),cy=Math.round(ey+dy*.66),S=9;
+  R(cx-S-1,cy-S-1,2*S+2,2*S+2,O);R(cx-S+3,cy-S-5,2*S,4,O);R(cx+S+1,cy-S-4,4,2*S,O);
+  R(cx-S+3,cy-S-4,2*S-1,3,'#ffffff');R(cx+S+1,cy-S-3,3,2*S-2,'#9aa3b2');
+  R(cx-S,cy-S,2*S,2*S,col);R(cx-S,cy-S,2*S,2,'rgba(255,255,255,.35)');R(cx-S,cy+S-2,2*S,2,'rgba(0,0,0,.25)');
+  R(cx-S+3,cy-2,2*S-6,4,'#ffffff');
+  /* chrome ring and the mesh ball */
+  var rx=ex+dx*.88,ry=ey+dy*.88;E(rx,ry,5,5,O);E(rx,ry,4,4,'#c9ccd2');
+  E(hx,hy,11,11,O);E(hx,hy,10,10,'#2a2a2a');
+  for(var my=-8;my<=8;my+=2)for(var mx=-8;mx<=8;mx+=2){if(mx*mx+my*my<70)R(hx+mx+((my/2)&1),hy+my,1,1,'#4a4a4a');}
+  E(hx-4,hy-4,3,2,'#8a8a8a');R(hx-5,hy-5,2,1,'#d0d0d0');
 }
 function draw75Beaten(t,talking){
   var sk='#e9b48c',sh='#c98f66',hl='#f6cfab',hair='#c9a64e',hs='#a8893c',wet='#d7a37c';
@@ -6663,7 +6689,7 @@ function hiLocker(c,t){
     c.save();c.translate(cxp,cyp);c.scale(.6+.4*pop,.6+.4*pop);c.translate(-cxp,-cyp);c.globalAlpha=pop;
     c.fillStyle='#ffffff';c.strokeStyle=O;c.lineWidth=5;
     rr(c,bx,by,bw,bh,18);c.fill();c.stroke();
-    c.beginPath();c.moveTo(bx+4,by+bh*.62);c.lineTo(318,262);c.lineTo(bx+4,by+bh*.62+34);c.closePath();c.fill();c.stroke();
+    c.beginPath();c.moveTo(bx+4,by+bh*.62);c.lineTo(292,274);c.lineTo(bx+4,by+bh*.62+34);c.closePath();c.fill();c.stroke();
     c.fillRect(bx+1,by+bh*.62+3,10,28);
     var left=n;c.fillStyle=O;
     for(var i=0;i<lines.length&&left>0;i++){var s=lines[i].slice(0,left);c.fillText(s,bx+20,by+20+i*lh);left-=lines[i].length+1;}
@@ -6681,7 +6707,7 @@ function drawScreen(c,t){
   var talking=false;
   if(scene==='side'){var n=Math.floor((t-TYPE0)*CPS);talking=n>=0&&n<QUOTE.length&&QUOTE[n]!==' '&&Math.floor(t*8)%2===0;}
   var lk=scene==='locker'?(G.mode==='end'?99:G.tm):0,talk=scene==='locker'&&lk>=LCK.type0&&lk<lqEnd()&&LQ[Math.floor((lk-LCK.type0)*LCK.cps)]!==' '&&Math.floor(lk*8)%2===0;
-  if(scene==='champ')loChamp(G.tm);else if(scene==='locker')loLocker(lk,talk);else if(scene==='bug')loScore(t,48,3);else if(scene==='celeb')loCeleb(G.tm);else if(scene==='score')loScore(G.tm,51,3);else loField(t);
+  if(scene==='champ')loChamp(G.tm);else if(scene==='locker')loLockerZoom(lk,talk);else if(scene==='bug')loScore(t,48,3);else if(scene==='celeb')loCeleb(G.tm);else if(scene==='score')loScore(G.tm,51,3);else loField(t);
   c.save();rr(c,0,0,840,570,64);c.clip();
   c.imageSmoothingEnabled=false;c.drawImage(buf,0,0,840,buf.height*(840/buf.width));
   if(scene==='champ')hiChamp(c,G.tm);else if(scene==='locker')hiLocker(c,lk);else if(scene==='bug')hiScore(c,t,0,{top:'4TH QUARTER   12:13',line:'BILLS: DAVIS 1-YD TD RUN',sub:'FIELD GOAL TRY FROM THE RAIDERS 21'});else if(scene==='celeb')hiCeleb(c,G.tm);else if(scene==='score')hiScore(c,G.tm,levelPts(),{top:'4TH QUARTER   12:13',line:'NORWOOD 39-YD FIELD GOAL',sub:'FINAL: BILLS 51  RAIDERS 3',card:false});else hiField(c,t);

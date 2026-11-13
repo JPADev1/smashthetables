@@ -6366,7 +6366,7 @@ var SPR={
   rush:[".......","..hhh..",".hmmmh.",".hhhhh.","gjjjjjjg".slice(0,7),"jjjjjjj",".jjsjj.",".ppppp.","pp...pp","kk...kk","o.....o","......."],
   kneel:[".......",".......",".......","..hhh..",".hhhhh.",".hhhhh.","jjjjjj.","gjjjjj.",".jjjjj.",".pppppp","kkpppkk","oo..ooo"]
 };
-var KICK={swing:1.6,post:.3,perf:.06,fill:1.0,need:.7,top:.92};   /* aim swing period (s), half-width of the uprights and perfect band (aim units), power fill time, power needed, perfect power */
+var KICK={swing:1.76,post:.3,perf:.06,fill:1.0,need:.7,top:.92};   /* aim swing period (s), half-width of the uprights and perfect band (aim units), power fill time, power needed, perfect power */
 var G;
 function resetPlay(){G={mode:'pre',pt:0,tm:0,cam:0,aim:0,aimT:0,pow:0,powT:0,d:0,p:0,qD:0,qP:0,lD:'',lP:'',msg:'',sub:'',flash:9,kt:0};}
 resetPlay();
@@ -6374,6 +6374,10 @@ function aimAt(t){return Math.sin(t/KICK.swing*Math.PI*2);}            /* -1 .. 
 function powAt(t){var u=t/KICK.fill;return u<=1?u:Math.max(0,2-u);}     /* fills, then falls back */
 function fail(msg,sub){G.mode='fail';G.tm=0;G.msg=msg;G.sub=sub;G.flash=9;}
 function gameDown(){
+  if(G.mode==='celeb'){G.mode='score';G.tm=0;G.flash=0;return;}
+  if(G.mode==='score'&&G.tm>.4){G.mode='champ';G.tm=0;G.flash=0;return;}
+  if(G.mode==='champ'&&G.tm>.4){G.mode='locker';G.tm=0;G.flash=0;return;}
+  if(G.mode==='locker'){if(G.tm<lqEnd())G.tm=lqEnd();else{G.mode='end';G.tm=0;}return;}
   if(G.mode==='pre'){G.mode='aim';G.aimT=0;return;}
   if(G.mode==='aim'){G.d=aimAt(G.aimT);G.mode='power';G.powT=0;return;}
   if(G.mode==='power'){G.p=powAt(G.powT);G.mode='kick';G.kt=0;
@@ -6396,6 +6400,9 @@ function gameStep(dt){
   }
   if(G.mode==='td'&&G.tm>2)  {G.mode='celeb';G.tm=0;G.flash=0;}
   if(G.mode==='celeb'&&G.tm>3.8){G.mode='score';G.tm=0;G.flash=0;}
+  if(G.mode==='score'&&G.tm>2.8){G.mode='champ';G.tm=0;G.flash=0;}
+  if(G.mode==='champ'&&G.tm>4.2){G.mode='locker';G.tm=0;G.flash=0;}
+  if(G.mode==='locker'&&G.tm>lqEnd()+LCK.hold){G.mode='end';G.tm=0;}
 }
 function sprite(x,y,key,col,flip){
   var a=SPR[key],h=a.length,x0=Math.round(x)-3,y0=Math.round(y)-h;
@@ -6551,17 +6558,133 @@ function hiScore(c,tm,res,o){
     if(Math.floor(tm*2.2)%2===0){c.fillStyle='#ffd23f';c.font='10px '+PS;c.fillText('PRESS ACTION TO PLAY AGAIN',420,514);}
   }
 }
+/* ---------- after the kick: AFC champions card, then the locker room interview with #75 ---------- */
+var LQ="If they play like they did today, there's nobody who's going to beat them. Plain and Simple. I don't think anybody could have stopped them.";
+var LCK={type0:.9,cps:30,hold:3.4};   /* typing starts, characters per second, how long the full quote stays up */
+function lqEnd(){return LCK.type0+LQ.length/LCK.cps;}
+function loChamp(tm){
+  R(0,0,280,190,'#0b1b3a');
+  for(var y=0;y<190;y+=6)for(var x=(y/6%2)*3;x<280;x+=6)R(x,y,1,1,'#16295a');
+  /* light rays */
+  for(var i=0;i<12;i++){var a=i/12*Math.PI*2+tm*.4;for(var r=20;r<170;r+=3)R(140+Math.cos(a)*r,95+Math.sin(a)*r*.7,2,2,(i%2)?'#1d3c8f':'#c8102e');}
+  /* trophy: simple gold cup on a stand (no marks) */
+  R(126,60,28,4,'#7a5a00');E(140,50,14,14,'#7a5a00');E(140,50,13,13,'#ffd23f');R(127,36,27,14,'#ffd23f');R(126,35,29,2,'#7a5a00');
+  E(124,46,5,7,'#7a5a00');E(124,46,3,5,'#0b1b3a');E(156,46,5,7,'#7a5a00');E(156,46,3,5,'#0b1b3a');
+  R(136,62,8,12,'#ffd23f');R(128,74,24,4,'#ffd23f');R(124,78,32,6,'#7a5a00');R(132,40,4,16,'#fff1b5');
+  CONF.forEach(function(p){var y=(p[1]+tm*60*p[3])%200-10;R(p[0]+Math.sin(tm*4+p[1])*3,y,2,2,p[2]);});
+}
+function hiChamp(c,tm){
+  c.textAlign='center';c.textBaseline='middle';
+  var pop=1+.3*Math.exp(-tm*5),on=Math.floor(tm*4)%2===0;
+  c.save();c.translate(420,330);c.scale(pop,pop);
+  c.font='30px '+PS;c.fillStyle='#0b1b3a';c.fillText('BILLS WIN THE',424-420+0,4);c.fillStyle=on?'#ffd23f':'#ffffff';c.fillText('BILLS WIN THE',0,0);
+  c.font='28px '+PS;c.fillStyle='#0b1b3a';c.fillText('AFC CHAMPIONSHIP!',4,58);c.fillStyle=on?'#ffffff':'#ffd23f';c.fillText('AFC CHAMPIONSHIP!',0,54);
+  c.restore();
+  if(tm>.8){c.fillStyle='#9fb0d0';c.font='13px '+PS;c.fillText('FINAL:  BILLS 51   RAIDERS 3',420,470);}
+}
+/* the locker room: #75 after the game, head down, soaked, microphones pushed in from every side */
+function loLocker(t,talking){
+  R(0,0,280,190,'#2b3446');
+  /* lockers: open wood stalls with a hanging road jersey in a couple of them */
+  for(var x=-6;x<280;x+=38){R(x,8,36,118,'#5a4030');R(x+2,10,32,114,'#3a2a20');R(x+2,10,32,3,'#6a4a36');R(x+16,16,4,2,'#9aa3b2');
+    if(((x+6)/38)%3===1){R(x+8,20,20,30,'#e8e8e8');R(x+8,20,20,3,'#111');R(x+12,30,4,6,'#111');R(x+19,30,4,6,'#111');}
+    if(((x+6)/38)%3===2){E(x+18,96,9,8,'#b9bec6');R(x+9,100,18,4,'#8f96a3');}}
+  R(0,126,280,64,'#4a4038');for(var tx=0;tx<280;tx+=14)R(tx,126,1,64,'#3e352e');R(0,126,280,2,'#2a2018');
+  /* bench */
+  R(0,118,280,6,'#7a5a40');R(0,124,280,2,'#4a3828');
+  /* camera light glow on him */
+  for(var r=70;r>0;r-=10)E(96,96,r,r*.8,'rgba(255,240,200,'+(.025).toFixed(3)+')');
+  draw75Beaten(t,talking);
+  /* microphones: foam heads on poles, plain colored flags, from the left, the right and below */
+  mic(30,150,70,100,'#c8102e',t,0);mic(170,160,118,104,'#1747c4',t,1);mic(60,190,82,112,'#ffd23f',t,2);mic(150,190,108,114,'#3fd09a',t,3);mic(-10,120,60,96,'#f4f4f4',t,4);
+}
+function mic(x0,y0,x1,y1,flag,t,i){
+  var j=Math.sin(t*2+i)*1.2;x1+=j;y1+=j*.5;
+  var n=Math.max(Math.abs(x1-x0),Math.abs(y1-y0));for(var k=0;k<=n;k++){var u=k/n;R(x0+(x1-x0)*u-1,y0+(y1-y0)*u-1,3,3,'#1a1a1a');}
+  var fx=lerp(x0,x1,.72),fy=lerp(y0,y1,.72);R(fx-6,fy-5,12,10,O);R(fx-5,fy-4,10,8,flag);R(fx-5,fy-4,10,2,'rgba(255,255,255,.35)');
+  E(x1,y1,6,6,O);E(x1,y1,5,5,'#2a2a2a');R(x1-3,y1-3,2,2,'#4a4a4a');
+}
+function draw75Beaten(t,talking){
+  var sk='#e9b48c',sh='#c98f66',hl='#f6cfab',hair='#c9a64e',hs='#a8893c',wet='#d7a37c';
+  var bob=Math.round(Math.sin(t*1.4)*.6);
+  /* jersey: soaked through at the collar, grass and dirt stains, shoulders sagging */
+  torso(96,104,190,function(y){return y<108?18:y<114?18+(y-107)*6:y<116?56:y<118?59:y<122?61:63;},'#e9e9e9');
+  R(144,120,16,71,'#d4d7dd');R(120,150,24,41,'#dfe1e6');
+  R(72,104,48,10,'#c9ccd2');R(80,114,32,6,'#d4d7dd');   /* sweat-darkened collar */
+  R(52,140,10,6,'#6a8a4a');R(56,146,6,4,'#7a9a5a');R(122,160,12,5,'#7a6a4a');R(130,165,6,4,'#6a8a4a');R(70,172,8,4,'#7a6a4a');
+  R(48,116,1,32,'#c9ccd2');R(144,116,1,32,'#c9ccd2');
+  R(33,136,15,3,'#111');R(33,140,15,2,'#9aa3b2');R(145,136,15,3,'#111');R(145,140,15,2,'#9aa3b2');
+  digitsOutlined('75',82,124,4,'#111','#9aa3b2');
+  /* neck */
+  R(80,90+bob,33,15,O);R(81,90+bob,31,15,sk);R(101,90+bob,11,15,sh);R(95,99+bob,3,2,hl);
+  R(78,102,37,2,'#9aa3b2');R(78,104,37,4,'#111');
+  /* head, dropped a little and tipped down */
+  L.save();L.translate(0,bob+15);
+  E(96,62,19,23,O);R(79,59,35,20,O);E(96,80,15,6,O);E(77,64,4,6,O);E(115,64,4,6,O);
+  E(96,62,18,22,sk);R(80,59,33,19,sk);E(96,80,14,5,sk);E(77,64,3,5,sk);E(115,64,3,5,sk);
+  R(76,62,1,4,sh);R(116,62,1,4,sh);
+  R(108,57,5,21,sh);R(80,73,3,5,sh);R(110,74,3,5,sh);E(96,82,10,2,sh);
+  /* flat-top, matted down with sweat: uneven top, darker, spiky clumps */
+  R(79,38,35,9,O);R(80,39,33,8,hair);
+  for(var x=80;x<113;x+=3)R(x,37+((x*7)%3),2,3,hair);
+  for(var x2=81;x2<113;x2+=2)R(x2,40,1,6,hs);
+  R(78,45,4,13,'#a8893c');R(111,45,4,13,'#a8893c');R(80,46,33,2,hair);
+  R(86,47,2,4,hair);R(99,47,2,3,hair);   /* wet strands stuck to the forehead */
+  /* forehead shine and sweat */
+  R(88,49,6,1,'#fff6e8');R(100,48,4,1,'#fff6e8');R(84,51,2,1,'#fff6e8');
+  /* sad brows: inner ends up */
+  var br='#8a6428';
+  R(83,56,4,2,br);R(87,55,4,2,br);R(91,53,3,2,br);
+  R(99,53,3,2,br);R(102,55,4,2,br);R(106,56,4,2,br);
+  /* eyes: heavy lids, looking down and away, bags under */
+  R(84,59,8,2,'#f2e6dc');R(100,59,8,2,'#f2e6dc');
+  R(86,60,3,1,'#3e5e7e');R(102,60,3,1,'#3e5e7e');
+  R(84,58,8,1,'#7a4a3a');R(100,58,8,1,'#7a4a3a');R(84,57,8,1,sh);R(100,57,8,1,sh);
+  R(84,61,7,1,'#b07a62');R(101,61,7,1,'#b07a62');R(85,62,5,1,sh);R(102,62,5,1,sh);
+  /* nose, cheeks flushed */
+  R(95,59,3,8,hl);R(98,60,1,7,sh);R(92,67,9,2,sh);
+  R(82,65,5,3,'#e39a80');R(106,65,5,3,'#e39a80');
+  /* mouth: tight frown, or talking low */
+  if(talking){R(90,72,13,4,'#3a1010');R(91,72,11,1,'#d8d0c8');}
+  else{R(90,73,13,2,'#8a4038');R(89,74,2,2,'#8a4038');R(102,74,2,2,'#8a4038');}
+  R(96,79,1,2,sh);
+  /* sweat drops running down: temples, cheek, chin */
+  [[80,52,0],[112,54,.5],[86,66,1.1],[108,68,1.7],[97,82,2.3]].forEach(function(d){var k=((t*.6+d[2])%2.4)/2.4,y=d[1]+k*12;R(d[0],y,2,3,'#cfe8ff');R(d[0],y,1,1,'#ffffff');R(d[0],y+3,2,1,'#9cc6e8');});
+  R(78,58,2,6,wet);R(113,58,2,6,wet);
+  L.restore();
+}
+function hiLocker(c,t){
+  var n=Math.max(0,Math.min(LQ.length,Math.floor((t-LCK.type0)*LCK.cps)));
+  c.font='14px '+PS;c.textAlign='left';c.textBaseline='top';
+  function wrapL(txt,maxW){var words=txt.split(' '),lines=[],cur='';words.forEach(function(w){var test=cur?cur+' '+w:w;if(c.measureText(test).width>maxW&&cur){lines.push(cur);cur=w;}else cur=test;});if(cur)lines.push(cur);return lines;}
+  var lines=wrapL(LQ,330),lh=25,bx=430,by=100,bw=382,bh=lines.length*lh+34;
+  if(t>=LCK.type0-.25){
+    var pop=ease((t-(LCK.type0-.25))/.25),cxp=bx+bw/2,cyp=by+bh/2;
+    c.save();c.translate(cxp,cyp);c.scale(.6+.4*pop,.6+.4*pop);c.translate(-cxp,-cyp);c.globalAlpha=pop;
+    c.fillStyle='#ffffff';c.strokeStyle=O;c.lineWidth=5;
+    rr(c,bx,by,bw,bh,18);c.fill();c.stroke();
+    c.beginPath();c.moveTo(bx+4,by+bh*.62);c.lineTo(318,262);c.lineTo(bx+4,by+bh*.62+34);c.closePath();c.fill();c.stroke();
+    c.fillRect(bx+1,by+bh*.62+3,10,28);
+    var left=n;c.fillStyle=O;
+    for(var i=0;i<lines.length&&left>0;i++){var s=lines[i].slice(0,left);c.fillText(s,bx+20,by+20+i*lh);left-=lines[i].length+1;}
+    if(n<LQ.length&&Math.floor(t*6)%2===0){c.fillRect(bx+bw-30,by+bh-22,10,10);}
+    c.restore();
+  }
+  c.textAlign='center';c.textBaseline='middle';c.font='11px '+PS;c.fillStyle='rgba(11,27,58,.85)';rr(c,70,500,250,34,8);c.fill();
+  c.fillStyle='#ff5468';c.fillText('LIVE  LOCKER ROOM',195,518);
+}
 function levelPts(){return Math.round(70+15*G.qD+15*G.qP);}   /* 70 + up to 15 for the aim + up to 15 for the power */
 
 function drawScreen(c,t){
-  var scene=t<CUT2?'bug':(G.mode==='celeb'?'celeb':G.mode==='score'?'score':'field');
+  var scene=t<CUT2?'bug':(G.mode==='celeb'?'celeb':G.mode==='score'?'score':(G.mode==='champ')?'champ':(G.mode==='locker'||G.mode==='end')?'locker':'field');
   var buf=scene==='field'?LF:LO;L=scene==='field'?L2:L1;L.clearRect(0,0,buf.width,buf.height);
   var talking=false;
   if(scene==='side'){var n=Math.floor((t-TYPE0)*CPS);talking=n>=0&&n<QUOTE.length&&QUOTE[n]!==' '&&Math.floor(t*8)%2===0;}
-  if(scene==='bug')loScore(t,48,3);else if(scene==='celeb')loCeleb(G.tm);else if(scene==='score')loScore(G.tm,51,3);else loField(t);
+  var lk=scene==='locker'?(G.mode==='end'?99:G.tm):0,talk=scene==='locker'&&lk>=LCK.type0&&lk<lqEnd()&&LQ[Math.floor((lk-LCK.type0)*LCK.cps)]!==' '&&Math.floor(lk*8)%2===0;
+  if(scene==='champ')loChamp(G.tm);else if(scene==='locker')loLocker(lk,talk);else if(scene==='bug')loScore(t,48,3);else if(scene==='celeb')loCeleb(G.tm);else if(scene==='score')loScore(G.tm,51,3);else loField(t);
   c.save();rr(c,0,0,840,570,64);c.clip();
   c.imageSmoothingEnabled=false;c.drawImage(buf,0,0,840,buf.height*(840/buf.width));
-  if(scene==='bug')hiScore(c,t,0,{top:'4TH QUARTER   12:13',line:'BILLS: DAVIS 1-YD TD RUN',sub:'FIELD GOAL TRY FROM THE RAIDERS 21'});else if(scene==='celeb')hiCeleb(c,G.tm);else if(scene==='score')hiScore(c,G.tm,levelPts(),{top:'4TH QUARTER   12:13',line:'NORWOOD 39-YD FIELD GOAL',sub:'FINAL: BILLS 51  RAIDERS 3',card:false});else hiField(c,t);
+  if(scene==='champ')hiChamp(c,G.tm);else if(scene==='locker')hiLocker(c,lk);else if(scene==='bug')hiScore(c,t,0,{top:'4TH QUARTER   12:13',line:'BILLS: DAVIS 1-YD TD RUN',sub:'FIELD GOAL TRY FROM THE RAIDERS 21'});else if(scene==='celeb')hiCeleb(c,G.tm);else if(scene==='score')hiScore(c,G.tm,levelPts(),{top:'4TH QUARTER   12:13',line:'NORWOOD 39-YD FIELD GOAL',sub:'FINAL: BILLS 51  RAIDERS 3',card:false});else hiField(c,t);
   if(t>=CUT2&&G.flash<.2){c.fillStyle='rgba(255,255,255,'+(.9*(1-G.flash/.2)).toFixed(2)+')';c.fillRect(0,0,840,570);}
   /* cut flashes */
   [CUT2].forEach(function(k){if(t>=k&&t<k+.18){c.fillStyle='rgba(255,255,255,'+(.85*(1-(t-k)/.18)).toFixed(2)+')';c.fillRect(0,0,840,570);}});
@@ -6789,11 +6912,11 @@ function frame(nowF){
   ctx.font='800 16px Nunito,sans-serif';ctx.textAlign='right';ctx.textBaseline='alphabetic';ctx.fillStyle='rgba(244,248,255,.55)';
   if(t<CUT2)ctx.fillText('Tap to skip',1180,540);
   if(RES===null&&t>=CUT2){
-    if(G.mode==='score'&&G.tm>.8)RES={full:true,miss:false,base7:levelPts(),t0:t};
+    if(G.mode==='end')RES={full:true,miss:false,base7:levelPts(),t0:t};
     else if(G.mode==='fail'&&G.tm>1.2)RES={full:false,miss:true,t0:t};
     if(RES)playIntro=false;
   }
-  var lab=t<CUT2?'Tap to skip':G.mode==='pre'?'Snap':G.mode==='aim'?'Aim':G.mode==='power'?'Kick':'';
+  var lab=t<CUT2?'Tap to skip':G.mode==='pre'?'Snap':G.mode==='aim'?'Aim':G.mode==='power'?'Kick':(G.mode==='celeb'||G.mode==='score'||G.mode==='champ'||G.mode==='locker')?'Tap to skip':'';
   if(lab!==LH){hold.textContent=lab;LH=lab;}
   requestAnimationFrame(frame);
 }

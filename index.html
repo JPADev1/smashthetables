@@ -4899,7 +4899,7 @@ var GL13={lvl:13,yd:1,left:15,players:function(L){return glForm(L,{});},
   sb:{buf0:21,buf1:27,clock:'2ND  9:02',ball:'BALL ON RAI 1'},
   celeb:{name:'KENNETH DAVIS',pos:'#23  RUNNING BACK',play:'1-YD TD RUN'}};
 var GL14={lvl:14,yd:3,left:17,players:function(L){var P=glForm(L,{deep:4});   /* from the 3 he has to get past the second level: guard climbs to #54, #57 and the safeties come late */
-    delete P[16].chase;P[16].held=1;P[18].chase={t:.7,v:18};P[20].chase={t:.6,v:20};P[21].chase={t:.6,v:20};return P;},
+    delete P[16].chase;P[16].held=1;P[18].chase={t:.7,v:18};P[20].chase={t:.6,v:20,k:1};P[21].chase={t:.6,v:20};return P;},   /* #33 keeps full speed so running straight ahead without a cut still gets stopped */
   bug:{b:27,top:'2ND QUARTER   3:18',line:'BILLS: DAVIS 1-YD TD RUN',sub:'BILLS BALL ON THE RAIDERS 3'},
   after:{b:34,top:'2ND QUARTER   3:18',line:'DAVIS 3-YD RUN'},
   sb:{buf0:27,buf1:34,clock:'2ND  3:18',ball:'BALL ON RAI 3'},
@@ -5066,7 +5066,8 @@ var RBI=-1,QBI=-1;PLAYERS.forEach(function(p,i){if(p.r==='rb')RBI=i;if(p.r==='qb
 var RBP=PLAYERS[RBI],QBP=PLAYERS[QBI],MESH={x:QBP.x-5,y:RBP.y-3};
 function path(W,t){if(t<=W[0][0])return {x:W[0][1],y:W[0][2]};for(var i=1;i<W.length;i++){if(t<=W[i][0]){var a=W[i-1],b=W[i],k=(t-a[0])/(b[0]-a[0]);return {x:a[1]+(b[1]-a[1])*k,y:a[2]+(b[2]-a[2])*k};}}var z=W[W.length-1];return {x:z[1],y:z[2]};}
 /* ---------- run rules: change numbers in the level's config ---------- */
-var RUN=Object.assign({hand:.5,vx:40,vy:34,tackle:5,juke:11,top:15,bot:123,goal:GOAL},C.run||{});
+/* ck = defender speed multiplier (.85 = 15% slower, the "15% easier" pass). A chaser can override it with chase.k */
+var RUN=Object.assign({hand:.5,vx:40,vy:34,tackle:5,juke:11,top:15,bot:123,goal:GOAL,ck:.85},C.run||{});
 var G;
 function resetPlay(){
   G={mode:'pre',pt:0,tm:0,cam:0,rb:{x:RBP.x,y:RBP.y,vy:0},hold:false,steered:false,d:{},close:{},jukes:0,ignoreUp:false,msg:'',sub:'',flash:9,down:null};
@@ -5113,7 +5114,7 @@ function gameStep(dt){
       var r=G.rb;r.x+=RUN.vx*dt;if(G.steered)r.y+=(G.hold?-1:1)*RUN.vy*dt;
       PLAYERS.forEach(function(p,i){if(!p.chase||t<p.chase.t)return;var d=G.d[i];if(!d.go){var s=chaserStart(p);d.x=s.x;d.y=s.y;d.go=1;}
         var lead=.2,tx=r.x+RUN.vx*lead,ty=r.y+(G.steered?(G.hold?-1:1)*RUN.vy*lead:0),dx=tx-d.x,dy=ty-d.y,l=Math.hypot(dx,dy)||1;
-        d.x+=dx/l*p.chase.v*dt;d.y+=dy/l*p.chase.v*dt;
+        var cv2=p.chase.v*(p.chase.k||RUN.ck);d.x+=dx/l*cv2*dt;d.y+=dy/l*cv2*dt;
         if(G.mode!=='run')return;
         var dist=Math.hypot(r.x-d.x,r.y-d.y);
         if(dist<RUN.tackle){G.down={i:i};var yd=Math.max(0,Math.ceil((RUN.goal-r.x)/7));fail('STUFFED!',yd>0?'Stopped at the '+yd+' - find the hole':'Stopped at the goal line - cut sooner');}

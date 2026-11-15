@@ -5066,8 +5066,8 @@ var RBI=-1,QBI=-1;PLAYERS.forEach(function(p,i){if(p.r==='rb')RBI=i;if(p.r==='qb
 var RBP=PLAYERS[RBI],QBP=PLAYERS[QBI],MESH={x:QBP.x-5,y:RBP.y-3};
 function path(W,t){if(t<=W[0][0])return {x:W[0][1],y:W[0][2]};for(var i=1;i<W.length;i++){if(t<=W[i][0]){var a=W[i-1],b=W[i],k=(t-a[0])/(b[0]-a[0]);return {x:a[1]+(b[1]-a[1])*k,y:a[2]+(b[2]-a[2])*k};}}var z=W[W.length-1];return {x:z[1],y:z[2]};}
 /* ---------- run rules: change numbers in the level's config ---------- */
-/* ck = defender speed multiplier (.85 = 15% slower, the "15% easier" pass). A chaser can override it with chase.k */
-var RUN=Object.assign({hand:.5,vx:40,vy:34,tackle:5,juke:11,top:15,bot:123,goal:GOAL,ck:.85},C.run||{});
+/* ck = defender speed multiplier (.765 = the "15% easier" pass, then "10% easier" again: .85 x .9). A chaser can override it with chase.k */
+var RUN=Object.assign({hand:.5,vx:40,vy:34,tackle:5,juke:11,top:15,bot:123,goal:GOAL,ck:.765},C.run||{});
 var G;
 function resetPlay(){
   G={mode:'pre',pt:0,tm:0,cam:0,rb:{x:RBP.x,y:RBP.y,vy:0},hold:false,steered:false,d:{},close:{},jukes:0,ignoreUp:false,msg:'',sub:'',flash:9,down:null};
